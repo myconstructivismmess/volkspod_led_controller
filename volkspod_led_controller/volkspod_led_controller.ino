@@ -1,297 +1,279 @@
-/* Copyright (C) 2024 Aubrey ROUET - All Rights Reserved
- * You may use, distribute and modify this code under the
- * terms of the GPL v2 license.
- */
+// +------------------------------------------------------------------------------+
+// | filename: volkspod_led_controller.ino                                        |
+// | filepath: volkspod_led_controller/volkspod_led_controller.ino                |
+// | project name: volkspod_led_controller                                        |
+// | authors: Aubrey ROUET <aubrey.rouet@gmail.com>                               |
+// | license: MIT                                                                 |
+// |                                                                              |
+// | Copyright (c) 2025 Aubrey ROUET                                              |
+// |                                                                              |
+// | Permission is hereby granted, free of charge, to any person obtaining a copy |
+// | of this software and associated documentation files (the "Software"), to     |
+// | deal in the Software without restriction, including without limitation the   |
+// | rights to use, copy, modify, merge, publish, distribute, sublicense, and/or  |
+// | sell copies of the Software, and to permit persons to whom the Software is   |
+// | furnished to do so, subject to the following conditions:                     |
+// |                                                                              |
+// | The above copyright notice and this permission notice shall be included in   |
+// | all copies or substantial portions of the Software.                          |
+// |                                                                              |
+// | THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR   |
+// | IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     |
+// | FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE  |
+// | AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER       |
+// | LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING      |
+// | FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS |
+// | IN THE SOFTWARE.                                                             |
+// +------------------------------------------------------------------------------+
 
-// ------------------------------------------------------------- Libraries -------------------------------------------------------------
+
+
+// ----- External Libraries ----------------------------------------------------
 
 #include "Adafruit_NeoPixel.h"
 
-// -------------------------------------------------------------- Classes --------------------------------------------------------------
 
-class SimplifiedSwitch {
-  public:
-    SimplifiedSwitch(uint8_t pin, unsigned long deadTimeMs = 50)
-      : _pin(pin),
-        _deadTimeMs(deadTimeMs)
-    {
-      pinMode(
-        _pin,
-        pullupResistance
-          ? INPUT_PULLUP
-          : INPUT
-      );
-    }
 
-    void update() {
-      unsigned long currentTimeMs = millis();
-      unsigned long timeSince
-    }
-  private:
-    const uint8_t _pin;
-    const unsigned long _safeTimeMs;
+// ----- Internal Libraries ----------------------------------------------------
 
-    unsigned long _latestUpdateTimeMs;
-    bool _state;
+#include "simplified_switch.h"
+//#include "neopixel_advanced_control.hpp"
 
-    void updateState() {
-      _state = digitalRead(_pin);
-    }
-};
 
-// -------------------------------------------------------- Switches and Sensors -------------------------------------------------------
 
-#define TURN_SIGNAL_LEFT_SWITCH_PIN 2
-SimplifiedSwitch turnSignalLeftSwitch(TURN_SIGNAL_LEFT_SWITCH_PIN);
+// ----- Settings --------------------------------------------------------------
 
-#define TURN_SIGNAL_RIGHT_SWITCH_PIN 3
-SimplifiedSwitch turnSignalRightSwitch(TURN_SIGNAL_RIGHT_SWITCH_PIN);
+// Debug Settings
+#define DEBUG
 
-#define LIGHT_ON_OFF_SWITCH_PIN 4
-SimplifiedSwitch ledOnOffSwitch(LIGHT_ON_OFF_SWITCH_PIN);
 
-#define BRAKE_SENSOR_PIN 5
 
-// ------------------------------------------------------------- Neopixels -------------------------------------------------------------
+// Experimentation Settings
+#define BRAKE_SENSOR_PIN 12
+#define TURN_SIGNAL_LEFT_SWITCH_PIN 11
+#define TURN_SIGNAL_RIGHT_SWITCH_PIN 10
+#define LIGHT_ON_OFF_SWITCH_PIN 9
 
+// Settings
+//#define BRAKE_SENSOR_PIN 5
+//#define TURN_SIGNAL_LEFT_SWITCH_PIN 2
+//#define TURN_SIGNAL_RIGHT_SWITCH_PIN 3
+//#define LIGHT_ON_OFF_SWITCH_PIN 4
+
+
+
+// Experimentation Settings
 #define FRONT_NEOPIXEL_PIN 6
 #define FRONT_NEOPIXEL_PIXEL_COUNT 60
-Adafruit_NeoPixel frontNeopixel(FRONT_NEOPIXEL_PIXEL_COUNT, FRONT_NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
-
-#define BACK_NEOPIXEL_PIN 7
+#define BACK_NEOPIXEL_PIN 5
 #define BACK_NEOPIXEL_PIXEL_COUNT 37 // 16 + 12 + 8 + 1
-Adafruit_NeoPixel backNeopixel(BACK_NEOPIXEL_PIXEL_COUNT, BACK_NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
-// Index pour chaque section de l'anneau arrière
-const int indexAnneauExterieurStart = 0;
-const int indexAnneauExterieurEnd = 15;
-const int indexAnneauMilieuStart = 16;
-const int indexAnneauMilieuEnd = 27;
-const int indexAnneauInterieurStart = 28;
-const int indexAnneauInterieurEnd = 35;
-const int indexLedCentrale = 36;
+// Settings
+//#define FRONT_NEOPIXEL_PIN 6
+//#define FRONT_NEOPIXEL_PIXEL_COUNT 60
+//#define BACK_NEOPIXEL_PIN 7
+//#define BACK_NEOPIXEL_PIXEL_COUNT 37 // 16 + 12 + 8 + 1
 
-// --------------------------------------------------------------- Setup ---------------------------------------------------------------
+
+
+// ----- Switches and Sensors --------------------------------------------------
+
+SimplifiedSwitch brakeSensor(BRAKE_SENSOR_PIN);
+SimplifiedSwitch turnSignalLeftSwitch(TURN_SIGNAL_LEFT_SWITCH_PIN);
+SimplifiedSwitch turnSignalRightSwitch(TURN_SIGNAL_RIGHT_SWITCH_PIN);
+SimplifiedSwitch ledOnOffSwitch(LIGHT_ON_OFF_SWITCH_PIN);
+
+
+
+// ----- Neopixels -------------------------------------------------------------
+
+//Adafruit_NeoPixel frontNeopixel(
+//  FRONT_NEOPIXEL_PIXEL_COUNT,
+//  FRONT_NEOPIXEL_PIN,
+//  NEO_GRB + NEO_KHZ800
+//);
+//NeopixelManager frontNeopixelManager(frontNeopixel);
+//
+//Adafruit_NeoPixel backNeopixel(
+//  BACK_NEOPIXEL_PIXEL_COUNT,
+//  BACK_NEOPIXEL_PIN,
+//  NEO_GRB + NEO_KHZ800
+//);
+//NeopixelManager backNeopixelManager(backNeopixel);
+
+
+
+// ----- Front Neopixel Layers --------------------------------------------------
+
+//NeopixelLayer ledOnOffFrontLayer;
+
+
+
+// ----- Back Neopixel Layers --------------------------------------------------
+
+//NeopixelLayer ledOnOffBackLayer;
+
+
+
+// ----- Debug Functions -------------------------------------------------------
+
+#ifdef DEBUG
+void print_buttons_state() {
+    Serial.print("-");
+    if (brakeSensor.getState()) {
+        Serial.print("---");
+    } else {
+        Serial.print("   ");
+    }
+    Serial.print("- ");
+
+    Serial.print("-");
+    if (turnSignalLeftSwitch.getState()) {
+        Serial.print("---");
+    } else {
+        Serial.print("   ");
+    }
+    Serial.print("- ");
+
+    Serial.print("-");
+    if (turnSignalRightSwitch.getState()) {
+        Serial.print("---");
+    } else {
+        Serial.print("   ");
+    }
+    Serial.print("- ");
+
+    Serial.print("-");
+    if (ledOnOffSwitch.getState()) {
+        Serial.print("---");
+    } else {
+        Serial.print("   ");
+    }
+    Serial.println("-");
+
+    
+    Serial.println("BRAKE LEFT  RIGHT LIGHT");
+
+    
+    Serial.println();
+}
+#endif
+
+
+
+// ----- Setup -----------------------------------------------------------------
 
 void setup() {
-  pinMode(boutonClignoGauche, INPUT);
-  pinMode(boutonClignoDroit, INPUT);
-  pinMode(boutonPleinPhare, INPUT);
-  pinMode(boutonFrein, INPUT);
-
-  anneauAvant.begin();
-  anneauArriere.begin();
-  eteindreAnneaux();
+#ifdef DEBUG
+    Serial.begin(115200);
+    print_buttons_state();
+#endif
 }
 
-// ------------------------------------------------------------- Main Loop -------------------------------------------------------------
+
+
+// ----- Update Loop -----------------------------------------------------------
 
 void loop() {
-  bool freinActif = digitalRead(boutonFrein) == HIGH;
-  bool pleinPhareActif = digitalRead(boutonPleinPhare) == HIGH;
-  bool clignoGaucheActif = digitalRead(boutonClignoGauche) == HIGH;
-  bool clignoDroitActif = digitalRead(boutonClignoDroit) == HIGH;
-
-  static bool pleinPhareInit = false;
-
-  if (pleinPhareActif && !pleinPhareInit) {
-    // Animation de démarrage lors de l'activation des pleins phares
-    allumerPleinPhareProgressivement();
-    pleinPhareInit = true; // Indique que l'animation de démarrage est terminée
-  }
-
-  if (freinActif && pleinPhareActif) {
-    allumerPleinPhareAvecFrein();
-  } else if (freinActif) {
-    allumerFrein();
-  } else if (clignoGaucheActif) {
-    clignoterGauche();
-  } else if (clignoDroitActif) {
-    clignoterDroit();
-  } else if (pleinPhareActif) {
-    effetActivationPleinPhare();
-  } else {
-    eteindreAnneaux();
-    pleinPhareInit = false; // Réinitialise l'animation de démarrage
-  }
-}
-
-void allumerPleinPhareProgressivement() {
-  // Allumer les LEDs avant séquentiellement
-  for (int i = 0; i < numLEDsAvant; i++) {
-    anneauAvant.setPixelColor(i, anneauAvant.Color(255, 255, 255));
-    anneauAvant.show();
-    delay(10); // Contrôle la vitesse d'allumage
-  }
-
-  // Allumer les LEDs arrière (milieu + intérieur + centrale) séquentiellement
-  for (int i = indexAnneauMilieuStart; i <= indexAnneauInterieurEnd; i++) {
-    anneauArriere.setPixelColor(i, anneauArriere.Color(255, 255, 255));
-    anneauArriere.show();
-    delay(10);
-  }
-
-  // Allumer la LED centrale à la fin
-  anneauArriere.setPixelColor(indexLedCentrale, anneauArriere.Color(255, 255, 255));
-  anneauArriere.show();
-  delay(10);
-}
-
-
-void allumerFrein() {
-  for (int i = indexAnneauMilieuStart; i <= indexAnneauInterieurEnd; i++) {
-    anneauArriere.setPixelColor(i, anneauArriere.Color(255, 0, 0));
-  }
-  anneauArriere.setPixelColor(indexLedCentrale, anneauArriere.Color(255, 0, 0));
-  anneauArriere.show();
-}
-
-void effetActivationPleinPhare() {
-  static int brightness = 35;        // Luminosité initiale (jamais 0)
-  static int step = 5;               // Pas d'incrémentation/décrémentation
-  static bool increasing = true;     // Direction de l'animation
-
-  // Animation progressive pour les LEDs avant
-  for (int i = 0; i < numLEDsAvant; i++) {
-    anneauAvant.setPixelColor(i, anneauAvant.Color(brightness, brightness, brightness));
-  }
-  anneauAvant.show();
-
-  // Animation progressive pour les LEDs arrière
-  for (int i = indexAnneauMilieuStart; i <= indexAnneauInterieurEnd; i++) {
-    anneauArriere.setPixelColor(i, anneauArriere.Color(brightness, brightness, brightness));
-  }
-  anneauArriere.setPixelColor(indexLedCentrale, anneauArriere.Color(brightness, brightness, brightness));
-  anneauArriere.show();
-
-  // Mise à jour de la luminosité pour la prochaine boucle
-  if (increasing) {
-    brightness += step;
-    if (brightness >= 255) {
-      increasing = false; // Commence à décroître
+    // Update Time
+    unsigned long currentTimeMs = millis();
+  
+    // Update Buttons
+    brakeSensor.update(currentTimeMs);
+    if (brakeSensor.getStateUpdated()) {
+        brakeSensor.resetStateUpdated();
+        onBrakeSensorChange();
     }
-  } else {
-    brightness -= step;
-    if (brightness <= 35) { // Ne descend pas en dessous de 50
-      increasing = true; // Recommence à croître
-    }
-  }
-
-  delay(30); // Contrôle la vitesse de l'animation
-}
-
-void allumerPleinPhareAvecFrein() {
-  // LEDs avant restent en blanc
-  for (int i = 0; i < numLEDsAvant; i++) {
-    anneauAvant.setPixelColor(i, anneauAvant.Color(255, 255, 255));
-  }
-  anneauAvant.show();
-
-  // LEDs arrière : superposition du rouge (frein)
-  for (int i = indexAnneauMilieuStart; i <= indexAnneauInterieurEnd; i++) {
-    anneauArriere.setPixelColor(i, anneauArriere.Color(255, 0, 0));
-  }
-  anneauArriere.setPixelColor(indexLedCentrale, anneauArriere.Color(255, 0, 0));
-  anneauArriere.show();
-}
-
-void clignoterGauche() {
-  while (digitalRead(boutonClignoGauche) == HIGH) {
-    // LEDs avant gauche
-    for (int i = 0; i < 15; i++) {
-      anneauAvant.setPixelColor(i, anneauAvant.Color(255, 165, 0));
-      anneauAvant.setPixelColor(29 - i, anneauAvant.Color(255, 165, 0));
-      anneauAvant.show();
-      delay(50);
+    
+    turnSignalLeftSwitch.update(currentTimeMs);
+    if (turnSignalLeftSwitch.getStateUpdated()) {
+        turnSignalLeftSwitch.resetStateUpdated();
+        onTurnSignalLeftSwitchChange();
     }
 
-    // LEDs arrière gauche
-    for (int i = 0; i < 4; i++) {
-      anneauArriere.setPixelColor(i, anneauArriere.Color(255, 165, 0));
-      anneauArriere.setPixelColor(7 - i, anneauArriere.Color(255, 165, 0));
-      anneauArriere.show();
-      delay(50);
+    turnSignalRightSwitch.update(currentTimeMs);
+    if (turnSignalRightSwitch.getStateUpdated()) {
+        turnSignalRightSwitch.resetStateUpdated();
+        onTurnSignalRightSwitchChange();
+    }
+    
+    ledOnOffSwitch.update(currentTimeMs);
+    if (ledOnOffSwitch.getStateUpdated()) {
+        ledOnOffSwitch.resetStateUpdated();
+        onLedOnOffSwitchChange();
     }
 
-    delay(300); // Pause entre les cycles
+    // Rendering
+    render(currentTimeMs);
+}
 
-    // Si les pleins phares sont activés, on met les clignotants en blanc, sinon on les éteint
-    if (digitalRead(boutonPleinPhare) == HIGH) {
-      // Mettre les clignotants en blanc
-      for (int i = 0; i < 15; i++) {
-        anneauAvant.setPixelColor(i, anneauAvant.Color(255, 255, 255));
-        anneauAvant.setPixelColor(29 - i, anneauAvant.Color(255, 255, 255));
-      }
-      for (int i = 0; i < 4; i++) {
-        anneauArriere.setPixelColor(i, anneauArriere.Color(0, 0, 0));
-        anneauArriere.setPixelColor(7 - i, anneauArriere.Color(0, 0, 0));
-      }
-      anneauAvant.show();
-      anneauArriere.show();
+
+
+// ----- Rendering -------------------------------------------------------------
+
+unsigned long lastRenderingUpdateTime = millis();
+void render(unsigned long currentTimeMs) {
+    // Rendering Front Neopixel (In reverse order, From top to bottom)
+//    frontNeopixelManager.select();
+    
+//    ledOnOffFrontLayer.draw();
+
+    // Rendering Back Neopixel (In reverse order, From top to bottom)
+//    backNeopixelManager.select();
+}
+
+
+
+// ----- Events ----------------------------------------------------------------
+
+void onBrakeSensorChange() {
+#ifdef DEBUG
+    print_buttons_state();
+#endif
+
+    if (brakeSensor.getState()) {
+        // Brake is pressed
     } else {
-      eteindreClignotants();
+        // Brake is released
     }
-  }
 }
 
-void clignoterDroit() {
-  while (digitalRead(boutonClignoDroit) == HIGH) {
-    // LEDs avant droite
-    for (int i = 0; i < 15; i++) {
-      anneauAvant.setPixelColor(30 + i, anneauAvant.Color(255, 165, 0));
-      anneauAvant.setPixelColor(59 - i, anneauAvant.Color(255, 165, 0));
-      anneauAvant.show();
-      delay(50);
-    }
+void onTurnSignalLeftSwitchChange() {
+#ifdef DEBUG
+    print_buttons_state();
+#endif
 
-    // LEDs arrière droite
-    for (int i = 0; i < 4; i++) {
-      anneauArriere.setPixelColor(8 + i, anneauArriere.Color(255, 165, 0));
-      anneauArriere.setPixelColor(15 - i, anneauArriere.Color(255, 165, 0));
-      anneauArriere.show();
-      delay(50);
-    }
-
-    delay(300); // Pause entre les cycles
-
-    // Si les pleins phares sont activés, on met les clignotants en blanc, sinon on les éteint
-    if (digitalRead(boutonPleinPhare) == HIGH) {
-      // Mettre les clignotants en blanc
-      for (int i = 0; i < 15; i++) {
-        anneauAvant.setPixelColor(30 + i, anneauAvant.Color(255, 255, 255));
-        anneauAvant.setPixelColor(59 - i, anneauAvant.Color(255, 255, 255));
-      }
-      for (int i = 0; i < 4; i++) {
-        anneauArriere.setPixelColor(8 + i, anneauArriere.Color(0, 0, 0));
-        anneauArriere.setPixelColor(15 - i, anneauArriere.Color(0, 0, 0));
-      }
-      anneauAvant.show();
-      anneauArriere.show();
+    if (turnSignalLeftSwitch.getState()) {
+        // Turn signal left is on
     } else {
-      eteindreClignotants();
+        // Turn signal left is off
     }
-  }
 }
 
-void eteindreClignotants() {
-  for (int i = 0; i < numLEDsAvant; i++) {
-    anneauAvant.setPixelColor(i, 0);
-  }
-  anneauAvant.show();
+void onTurnSignalRightSwitchChange() {
+#ifdef DEBUG
+    print_buttons_state();
+#endif
 
-  for (int i = indexAnneauExterieurStart; i <= indexAnneauExterieurEnd; i++) {
-    anneauArriere.setPixelColor(i, 0);
-  }
-  anneauArriere.show();
+    if (turnSignalRightSwitch.getState()) {
+        // Turn signal right is on
+    } else {
+        // Turn signal right is off
+    }
 }
 
-void eteindreAnneaux() {
-  for (int i = 0; i < numLEDsAvant; i++) {
-    anneauAvant.setPixelColor(i, 0);
-  }
-  for (int i = 0; i < numLEDsArriere; i++) {
-    anneauArriere.setPixelColor(i, 0);
-  }
-  anneauAvant.show();
-  anneauArriere.show();
+void onLedOnOffSwitchChange() {
+#ifdef DEBUG
+    print_buttons_state();
+#endif
+
+    if (ledOnOffSwitch.getState()) {
+        // LED is on
+    } else {
+        // LED is off
+    }
 }
+
+
+
+// -----------------------------------------------------------------------------
