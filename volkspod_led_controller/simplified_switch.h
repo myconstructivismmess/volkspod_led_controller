@@ -49,15 +49,18 @@ class SimplifiedSwitch {
         bool getStateUpdated();
         void resetStateUpdated();
 
-  private:
-    const uint8_t _pin;
-    const unsigned long _debounceDurationMs;
+    private:
+        const uint8_t _pin;
+        const unsigned long _debounceDurationMs;
 
-    unsigned long _updateAvailableTimeMs;
-    bool _state;
-    bool _stateUpdated;
+        unsigned long _updateAvailableTimeMs;
+        bool _state;
+        bool _stateUpdated;
 
-    void _updateState(unsigned long currentTimeMs, bool dontUpdateStateUpdated = false);
+        void _updateState(
+            unsigned long currentTimeMs,
+            bool dontUpdateStateUpdated = false
+        );
 };
 
 #endif
