@@ -28,47 +28,45 @@
 
 
 
-// ----- External Libraries ----------------------------------------------------
+// ----- External Libraries -------------------------------------------------------
 
-#include "Adafruit_NeoPixel.h"
+#include <Adafruit_NeoPixel.h>
 
 
 
-// ----- Internal Libraries ----------------------------------------------------
+// ----- Internal Libraries -------------------------------------------------------
 
 #include "simplified_switch.h"
-//#include "neopixel_advanced_control.hpp"
+#include "neopixel_manager.h"
 
 
 
-// ----- Settings --------------------------------------------------------------
+// ----- Settings -----------------------------------------------------------------
 
 // Debug Settings
 #define DEBUG
 
 
-
-// Experimentation Settings
+// Experimentation Sensors And Switches Settings
 #define BRAKE_SENSOR_PIN 12
 #define TURN_SIGNAL_LEFT_SWITCH_PIN 11
 #define TURN_SIGNAL_RIGHT_SWITCH_PIN 10
 #define LIGHT_ON_OFF_SWITCH_PIN 9
 
-// Settings
+// Sensors And Switches Settings
 //#define BRAKE_SENSOR_PIN 5
 //#define TURN_SIGNAL_LEFT_SWITCH_PIN 2
 //#define TURN_SIGNAL_RIGHT_SWITCH_PIN 3
 //#define LIGHT_ON_OFF_SWITCH_PIN 4
 
 
-
-// Experimentation Settings
+// Experimentation Neopixel Settings
 #define FRONT_NEOPIXEL_PIN 6
 #define FRONT_NEOPIXEL_PIXEL_COUNT 60
 #define BACK_NEOPIXEL_PIN 5
 #define BACK_NEOPIXEL_PIXEL_COUNT 37 // 16 + 12 + 8 + 1
 
-// Settings
+// Neopixel Settings
 //#define FRONT_NEOPIXEL_PIN 6
 //#define FRONT_NEOPIXEL_PIXEL_COUNT 60
 //#define BACK_NEOPIXEL_PIN 7
@@ -76,7 +74,7 @@
 
 
 
-// ----- Switches and Sensors --------------------------------------------------
+// ----- Switches and Sensors -----------------------------------------------------
 
 SimplifiedSwitch brakeSensor(BRAKE_SENSOR_PIN);
 SimplifiedSwitch turnSignalLeftSwitch(TURN_SIGNAL_LEFT_SWITCH_PIN);
@@ -85,39 +83,40 @@ SimplifiedSwitch ledOnOffSwitch(LIGHT_ON_OFF_SWITCH_PIN);
 
 
 
-// ----- Neopixels -------------------------------------------------------------
+// ----- Neopixels ----------------------------------------------------------------
 
-//Adafruit_NeoPixel frontNeopixel(
-//  FRONT_NEOPIXEL_PIXEL_COUNT,
-//  FRONT_NEOPIXEL_PIN,
-//  NEO_GRB + NEO_KHZ800
-//);
-//NeopixelManager frontNeopixelManager(frontNeopixel);
-//
-//Adafruit_NeoPixel backNeopixel(
-//  BACK_NEOPIXEL_PIXEL_COUNT,
-//  BACK_NEOPIXEL_PIN,
-//  NEO_GRB + NEO_KHZ800
-//);
-//NeopixelManager backNeopixelManager(backNeopixel);
+Adafruit_NeoPixel frontNeopixel(
+    FRONT_NEOPIXEL_PIXEL_COUNT,
+    FRONT_NEOPIXEL_PIN,
+    NEO_GRB + NEO_KHZ800
+);
+NeopixelManager frontNeopixelManager(&frontNeopixel);
+
+Adafruit_NeoPixel backNeopixel(
+    BACK_NEOPIXEL_PIXEL_COUNT,
+    BACK_NEOPIXEL_PIN,
+    NEO_GRB + NEO_KHZ800
+);
+NeopixelManager backNeopixelManager(&backNeopixel);
 
 
 
-// ----- Front Neopixel Layers --------------------------------------------------
+// ----- Front Neopixel Layers ----------------------------------------------------
 
 //NeopixelLayer ledOnOffFrontLayer;
 
 
 
-// ----- Back Neopixel Layers --------------------------------------------------
+// ----- Back Neopixel Layers -----------------------------------------------------
 
 //NeopixelLayer ledOnOffBackLayer;
 
 
 
-// ----- Debug Functions -------------------------------------------------------
+// ----- Debug Functions ----------------------------------------------------------
 
 #ifdef DEBUG
+
 void print_buttons_state() {
     Serial.print("-");
     if (brakeSensor.getState()) {
@@ -157,22 +156,37 @@ void print_buttons_state() {
     
     Serial.println();
 }
+
 #endif
 
 
 
-// ----- Setup -----------------------------------------------------------------
+// ----- Setup --------------------------------------------------------------------
 
 void setup() {
+
 #ifdef DEBUG
+
     Serial.begin(115200);
+    
+    Serial.println("Volkspod Led Controller: Hello ! ;)");
+    Serial.println();
+
+    frontNeopixelManager.begin();
+    backNeopixelManager.begin();
+
+    Serial.println("Volkspod Led Controller: Neopixel Managers Initialized !");
+    Serial.println();
+    
     print_buttons_state();
+
 #endif
+
 }
 
 
 
-// ----- Update Loop -----------------------------------------------------------
+// ----- Update Loop --------------------------------------------------------------
 
 void loop() {
     // Update Time
@@ -209,7 +223,7 @@ void loop() {
 
 
 
-// ----- Rendering -------------------------------------------------------------
+// ----- Rendering ----------------------------------------------------------------
 
 unsigned long lastRenderingUpdateTime = millis();
 void render(unsigned long currentTimeMs) {
@@ -224,11 +238,14 @@ void render(unsigned long currentTimeMs) {
 
 
 
-// ----- Events ----------------------------------------------------------------
+// ----- Events -------------------------------------------------------------------
 
 void onBrakeSensorChange() {
+
 #ifdef DEBUG
+
     print_buttons_state();
+
 #endif
 
     if (brakeSensor.getState()) {
@@ -239,8 +256,11 @@ void onBrakeSensorChange() {
 }
 
 void onTurnSignalLeftSwitchChange() {
+
 #ifdef DEBUG
+
     print_buttons_state();
+
 #endif
 
     if (turnSignalLeftSwitch.getState()) {
@@ -251,8 +271,11 @@ void onTurnSignalLeftSwitchChange() {
 }
 
 void onTurnSignalRightSwitchChange() {
+
 #ifdef DEBUG
+
     print_buttons_state();
+
 #endif
 
     if (turnSignalRightSwitch.getState()) {
@@ -263,8 +286,11 @@ void onTurnSignalRightSwitchChange() {
 }
 
 void onLedOnOffSwitchChange() {
+
 #ifdef DEBUG
+
     print_buttons_state();
+
 #endif
 
     if (ledOnOffSwitch.getState()) {
@@ -276,4 +302,4 @@ void onLedOnOffSwitchChange() {
 
 
 
-// -----------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
