@@ -30,8 +30,8 @@
 
 // ----- Switch Class --------------------------------------------------------
 
-#ifndef _SIMPLIFIED_SWITCH_H_
-#define _SIMPLIFIED_SWITCH_H_
+#ifndef _SIMPLIFIED_SWITCH_CLASS_H_
+#define _SIMPLIFIED_SWITCH_CLASS_H_
 
 #include <Arduino.h>
 
