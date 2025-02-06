@@ -26,14 +26,13 @@
 // | IN THE SOFTWARE.                                                             |
 // +------------------------------------------------------------------------------+
 
-
-
 // ----- Simplified Switch Class --------------------------------------------------
 
 #ifndef _SIMPLIFIED_SWITCH_CLASS_H_
 #define _SIMPLIFIED_SWITCH_CLASS_H_
 
 #include <Arduino.h>
+#include <limits.h>
 
 class SimplifiedSwitch {
     public:
@@ -53,18 +52,14 @@ class SimplifiedSwitch {
         const uint8_t _pin;
         const unsigned long _debounceDurationMs;
 
-        unsigned long _updateAvailableTimeMs;
+        unsigned long _lastUpdateTimeMs = 0;
+        unsigned long _timeLeftBeforeUpdateMs = 0; // For debouncing purposes only
         bool _state;
         bool _stateUpdated;
 
-        void _updateState(
-            unsigned long currentTimeMs,
-            bool dontUpdateStateUpdated = false
-        );
+        void _updateState(bool dontUpdateStateUpdated = false);
 };
 
 #endif
-
-
 
 // --------------------------------------------------------------------------------

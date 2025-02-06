@@ -26,15 +26,16 @@
 // | IN THE SOFTWARE.                                                             |
 // +------------------------------------------------------------------------------+
 
-
-
 // ----- Simplified Switch Class --------------------------------------------------
 
 #include "simplified_switch.h"
 
-SimplifiedSwitch::SimplifiedSwitch(uint8_t pin, unsigned long debounceDurationMs)
-    : _pin(pin),
-      _debounceDurationMs(debounceDurationMs)
+SimplifiedSwitch::SimplifiedSwitch(
+    uint8_t pin,
+    unsigned long debounceDurationMs
+) :
+    _pin(pin),
+    _debounceDurationMs(debounceDurationMs)
 {
     pinMode(
         _pin,
@@ -42,12 +43,25 @@ SimplifiedSwitch::SimplifiedSwitch(uint8_t pin, unsigned long debounceDurationMs
     );
 
     unsigned long currentTimeMs = millis();
-    _updateState(currentTimeMs, true);
+    _lastUpdateTimeMs = currentTimeMs;
+    _updateState(false);
 }
 
 void SimplifiedSwitch::update(unsigned long currentTimeMs) {
-    if (_updateAvailableTimeMs <= currentTimeMs) {
-        _updateState(currentTimeMs);
+    unsigned long deltaTimeMs = 0;
+    
+    if (currentTimeMs < _lastUpdateTimeMs) {
+        deltaTimeMs = (ULONG_MAX - _lastUpdateTimeMs) + currentTimeMs + 1;
+    } else {
+        deltaTimeMs = currentTimeMs - _lastUpdateTimeMs;
+    }
+    
+    _lastUpdateTimeMs = currentTimeMs;
+
+    _timeLeftBeforeUpdateMs = max(0, _timeLeftBeforeUpdateMs - deltaTimeMs);
+
+    if (_timeLeftBeforeUpdateMs <= 0) {
+        _updateState();
     }
 }
 
@@ -62,18 +76,18 @@ void SimplifiedSwitch::resetStateUpdated() {
     _stateUpdated = false;
 }
 
-void SimplifiedSwitch::_updateState(unsigned long currentTimeMs, bool dontUpdateStateUpdated) {
-    _updateAvailableTimeMs = currentTimeMs + _debounceDurationMs;
-
+void SimplifiedSwitch::_updateState(bool dontUpdateStateUpdated) {
     bool newState = digitalRead(_pin) == HIGH;
 
-    if (newState != _state && !dontUpdateStateUpdated) {
-        _stateUpdated = !_stateUpdated;
+    if (newState != _state) {
+        _timeLeftBeforeUpdateMs = _debounceDurationMs;
+
+        if (!dontUpdateStateUpdated) {
+            _stateUpdated = !_stateUpdated;
+        }
     }
 
     _state = newState;
 }
-
-
 
 // --------------------------------------------------------------------------------
