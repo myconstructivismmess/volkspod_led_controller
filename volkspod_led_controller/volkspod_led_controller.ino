@@ -172,8 +172,12 @@ void setup() {
     Serial.println("Volkspod Led Controller: Hello ! ;)");
     Serial.println();
 
+#endif
+
     frontNeopixelManager.begin();
     backNeopixelManager.begin();
+
+#ifdef DEBUG
 
     Serial.println("Volkspod Led Controller: Neopixel Managers Initialized !");
     Serial.println();
