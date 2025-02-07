@@ -26,26 +26,20 @@
 // | IN THE SOFTWARE.                                                             |
 // +------------------------------------------------------------------------------+
 
-
-
 // ----- External Libraries -------------------------------------------------------
 
 #include <Adafruit_NeoPixel.h>
-
-
 
 // ----- Internal Libraries -------------------------------------------------------
 
 #include "simplified_switch.h"
 #include "neopixel_manager.h"
-
-
+#include "on_off_layer.h"
 
 // ----- Settings -----------------------------------------------------------------
 
 // Debug Settings
 #define DEBUG
-
 
 // Experimentation Sensors And Switches Settings
 #define BRAKE_SENSOR_PIN 12
@@ -59,7 +53,6 @@
 //#define TURN_SIGNAL_RIGHT_SWITCH_PIN 3
 //#define LIGHT_ON_OFF_SWITCH_PIN 4
 
-
 // Experimentation Neopixel Settings
 #define FRONT_NEOPIXEL_PIN 6
 #define FRONT_NEOPIXEL_PIXEL_COUNT 60
@@ -72,16 +65,12 @@
 //#define BACK_NEOPIXEL_PIN 7
 //#define BACK_NEOPIXEL_PIXEL_COUNT 37 // 16 + 12 + 8 + 1
 
-
-
 // ----- Switches and Sensors -----------------------------------------------------
 
 SimplifiedSwitch brakeSensor(BRAKE_SENSOR_PIN);
 SimplifiedSwitch turnSignalLeftSwitch(TURN_SIGNAL_LEFT_SWITCH_PIN);
 SimplifiedSwitch turnSignalRightSwitch(TURN_SIGNAL_RIGHT_SWITCH_PIN);
 SimplifiedSwitch ledOnOffSwitch(LIGHT_ON_OFF_SWITCH_PIN);
-
-
 
 // ----- Neopixels ----------------------------------------------------------------
 
@@ -99,19 +88,13 @@ Adafruit_NeoPixel backNeopixel(
 );
 NeopixelManager backNeopixelManager(&backNeopixel);
 
-
-
 // ----- Front Neopixel Layers ----------------------------------------------------
 
 //NeopixelLayer ledOnOffFrontLayer;
 
-
-
 // ----- Back Neopixel Layers -----------------------------------------------------
 
 //NeopixelLayer ledOnOffBackLayer;
-
-
 
 // ----- Debug Functions ----------------------------------------------------------
 
@@ -158,8 +141,6 @@ void print_buttons_state() {
 }
 
 #endif
-
-
 
 // ----- Setup --------------------------------------------------------------------
 
@@ -225,8 +206,6 @@ void loop() {
     render(currentTimeMs);
 }
 
-
-
 // ----- Rendering ----------------------------------------------------------------
 
 unsigned long lastRenderingUpdateTime = millis();
@@ -239,8 +218,6 @@ void render(unsigned long currentTimeMs) {
     // Rendering Back Neopixel (In reverse order, From top to bottom)
 //    backNeopixelManager.select();
 }
-
-
 
 // ----- Events -------------------------------------------------------------------
 
@@ -303,7 +280,5 @@ void onLedOnOffSwitchChange() {
         // LED is off
     }
 }
-
-
 
 // --------------------------------------------------------------------------------
