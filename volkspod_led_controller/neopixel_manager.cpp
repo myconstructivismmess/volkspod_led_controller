@@ -26,27 +26,85 @@
 // | IN THE SOFTWARE.                                                             |
 // +------------------------------------------------------------------------------+
 
-
-
 // ----- Neopixel Manager Class ---------------------------------------------------
 
 #include "neopixel_manager.h"
 
-NeopixelManager* NeopixelManager::_selectedNeopixelManager = nullptr;
-
 NeopixelManager::NeopixelManager(
-    const Adafruit_NeoPixel* neopixel
+    const Adafruit_NeoPixel* neopixel,
+    const NeopixelLayer* layers[],
+    const size_t layersCount
 ) :
-    _neopixel(neopixel)
-{}
+    _neopixel(neopixel),
+    _layers(layers),
+    _layersCount(layersCount)
+{
+    for (size_t layerIndex = 0; layerIndex < layersCount; layerIndex++) {
+        _layers[layerIndex]->setManager(&this);
+    }
+}
 
 void NeopixelManager::begin() {
     _neopixel->begin();
            
     _neopixel->clear();
-    _neopixel->show();
+    _renderAll();
 }
 
+void NeopixelManager::_onNeopixelLayerUpdated(NeopixelLayer* layer) {
+    _renderFramed(layer->getStartIndex() && layer->getEndIndex());
+}
 
+void NeopixelManager::_renderAll() {
+    uint16_t pixelCount = _selectedNeopixelManager.numPixels();
+    _render_framed(0, pixelCount - 1);
+}
+void NeopixelManager::_renderFramed(uint16_t startIndex, uint16_t endIndex) {
+    // Iterating over all pixels in the provided frame to rerender them
+    for (uint16_t index = startIndex; index <= endIndex; index++) {
+        size_t layerIndex = _layersCount - 1;
+        size_t lastLayerEncouteredToRender = _layersCount;
+        Color color = { 0, 0, 0 };
+
+        // Finding the first layer that doesn't need the pixel colors from preceding layers.
+        while (layerIndex > 0) {
+            NeopixelLayer* layer = _layers[layerIndex];
+
+            if (!layer->isEnabled() || index < layer->getStartIndex() || layer->getEndIndex() < index) {
+                // Pixel out of layer bounds or layer disabled, Skipping
+                layerIndex--;
+                continue;
+            }
+
+            lastLayerEncouteredToRender = layerIndex;
+
+            if (!layer->hasNeedForBackgroundPixelColor(index)) {
+                break;
+            }
+
+            layerIndex--;
+        }
+
+        if (lastLayerEncouteredToRender != _layersCount) {
+            layerIndex = lastLayerEncouteredToRender;
+
+            while (layerIndex < _layersCount) {
+                NeopixelLayer* layer = _layers[layerIndex];
+
+                if (!layer->isEnabled() || index < layer->getStartIndex() || layer->getEndIndex() < index) {
+                    // Pixel out of layer bounds or layer disabled, Skipping
+                    layerIndex++;
+                    continue;
+                }
+
+                color = layer->getPixelColor(color, index);
+            }
+        }
+
+        _neopixel->setPixelColor(index, color.red, color.green, color.blue);
+    }
+
+    _neopixel->show();
+}
 
 // --------------------------------------------------------------------------------

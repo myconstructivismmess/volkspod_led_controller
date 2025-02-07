@@ -26,13 +26,9 @@
 // | IN THE SOFTWARE.                                                             |
 // +------------------------------------------------------------------------------+
 
-
-
-// ----- External Libraries ------------------------------------------------------
+// ----- External Libraries -------------------------------------------------------
 
 #include <Adafruit_NeoPixel.h>
-
-
 
 // ----- Neopixel Manager Class ---------------------------------------------------
 
@@ -40,34 +36,30 @@
 #define _NEOPIXEL_MANAGER_CLASS_H_
 
 #include <Arduino.h>
-
 #include "color.h"
+#include "neopixel_layer.h"
 
 class NeopixelManager {
     public:
-        //friend class NeopixelLayer;
-
-        NeopixelManager(const Adafruit_NeoPixel* neopixel);
+        NeopixelManager(
+            const Adafruit_NeoPixel* neopixel,
+            const NeopixelLayer* layers[],
+            const size_t layersCount
+        );
 
         void begin();
 
-        void select() {
-            _selectedNeopixelManager = this;
-        }
-
-        static void setPixelColor(uint16_t index, Color color) {
-            if (_selectedNeopixelManager == nullptr) {
-                return;
-            }   
-        }
-
     private:
         const Adafruit_NeoPixel* _neopixel;
-        static NeopixelManager* _selectedNeopixelManager;
+        const size_t _layersCount;
+        const NeopixelLayer* _layers[];
+
+        void _onNeopixelLayerUpdated(NeopixelLayer* layer);
+
+        void _renderAll();
+        void _renderFramed(uint16_t startIndex, uint16_t endIndex);
 };
 
 #endif
-
-
 
 // --------------------------------------------------------------------------------
