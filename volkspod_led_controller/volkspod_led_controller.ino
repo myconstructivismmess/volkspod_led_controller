@@ -35,6 +35,7 @@
 #include "simplified_switch.h"
 #include "neopixel_manager.h"
 #include "on_off_layer.h"
+#include "color.h"
 
 // ----- Settings -----------------------------------------------------------------
 
@@ -72,6 +73,23 @@ SimplifiedSwitch turnSignalLeftSwitch(TURN_SIGNAL_LEFT_SWITCH_PIN);
 SimplifiedSwitch turnSignalRightSwitch(TURN_SIGNAL_RIGHT_SWITCH_PIN);
 SimplifiedSwitch ledOnOffSwitch(LIGHT_ON_OFF_SWITCH_PIN);
 
+// ----- Front Neopixel Layers ----------------------------------------------------
+
+OnOffLayer ledOnOffFrontLayer(0, 59, Color{255, 255, 255});
+
+#define FRONT_NEOPIXEL_LAYERS_COUNT 1
+NeopixelLayer* frontNeopixelLayers[FRONT_NEOPIXEL_LAYERS_COUNT] = {
+    &ledOnOffFrontLayer
+};
+
+// ----- Back Neopixel Layers -----------------------------------------------------
+
+//NeopixelLayer ledOnOffBackLayer;
+
+#define BACK_NEOPIXEL_LAYERS_COUNT 0
+NeopixelLayer* backNeopixelLayers[BACK_NEOPIXEL_LAYERS_COUNT] = {
+};
+
 // ----- Neopixels ----------------------------------------------------------------
 
 Adafruit_NeoPixel frontNeopixel(
@@ -79,22 +97,22 @@ Adafruit_NeoPixel frontNeopixel(
     FRONT_NEOPIXEL_PIN,
     NEO_GRB + NEO_KHZ800
 );
-NeopixelManager frontNeopixelManager(&frontNeopixel);
+NeopixelManager frontNeopixelManager(
+    &frontNeopixel,
+    &frontNeopixelLayers[0],
+    1
+);
 
 Adafruit_NeoPixel backNeopixel(
     BACK_NEOPIXEL_PIXEL_COUNT,
     BACK_NEOPIXEL_PIN,
     NEO_GRB + NEO_KHZ800
 );
-NeopixelManager backNeopixelManager(&backNeopixel);
-
-// ----- Front Neopixel Layers ----------------------------------------------------
-
-//NeopixelLayer ledOnOffFrontLayer;
-
-// ----- Back Neopixel Layers -----------------------------------------------------
-
-//NeopixelLayer ledOnOffBackLayer;
+NeopixelManager backNeopixelManager(
+    &backNeopixel,
+    &backNeopixelLayers[0],
+    0
+);
 
 // ----- Debug Functions ----------------------------------------------------------
 
@@ -149,9 +167,11 @@ void setup() {
 #ifdef DEBUG
 
     Serial.begin(115200);
-    
+
+    Serial.println("______________________________________");
     Serial.println("Volkspod Led Controller: Hello ! ;)");
     Serial.println();
+    Serial.flush();
 
 #endif
 
@@ -168,8 +188,6 @@ void setup() {
 #endif
 
 }
-
-
 
 // ----- Update Loop --------------------------------------------------------------
 
@@ -201,22 +219,6 @@ void loop() {
         ledOnOffSwitch.resetStateUpdated();
         onLedOnOffSwitchChange();
     }
-
-    // Rendering
-    render(currentTimeMs);
-}
-
-// ----- Rendering ----------------------------------------------------------------
-
-unsigned long lastRenderingUpdateTime = millis();
-void render(unsigned long currentTimeMs) {
-    // Rendering Front Neopixel (In reverse order, From top to bottom)
-//    frontNeopixelManager.select();
-    
-//    ledOnOffFrontLayer.draw();
-
-    // Rendering Back Neopixel (In reverse order, From top to bottom)
-//    backNeopixelManager.select();
 }
 
 // ----- Events -------------------------------------------------------------------
@@ -276,8 +278,10 @@ void onLedOnOffSwitchChange() {
 
     if (ledOnOffSwitch.getState()) {
         // LED is on
+        ledOnOffFrontLayer.enable();
     } else {
         // LED is off
+        ledOnOffFrontLayer.disable();
     }
 }
 
