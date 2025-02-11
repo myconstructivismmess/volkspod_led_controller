@@ -26,65 +26,87 @@
 // | IN THE SOFTWARE.                                                             |
 // +------------------------------------------------------------------------------+
 
+// ----- Cpp Headers --------------------------------------------------------------
+
+#include <limits.h>
+
 // ----- Simplified Switch Class --------------------------------------------------
 
 #include "simplified_switch.h"
 
 SimplifiedSwitch::SimplifiedSwitch(
-    uint8_t pin,
-    unsigned long debounceDurationMs
+    const uint8_t pin,
+    const unsigned long debounceDurationMs,
+    const bool pullup
 ) :
     _pin(pin),
-    _debounceDurationMs(debounceDurationMs)
+    _debounceDurationMs(debounceDurationMs),
+    _pullup(pullup)
 {
-    pinMode(
-        _pin,
-        INPUT
-    );
+    if (_pullup) {
+        pinMode(
+            _pin,
+            INPUT_PULLUP
+        );
+    } else {
+        pinMode(
+            _pin,
+            INPUT
+        );
+    }
 
-    unsigned long currentTimeMs = millis();
+    const unsigned long currentTimeMs = millis();
+
     _lastUpdateTimeMs = currentTimeMs;
-    _updateState(false);
+
+    _updateState();
 }
 
-void SimplifiedSwitch::update(unsigned long currentTimeMs) {
+void SimplifiedSwitch::update(const unsigned long currentTimeMs) {
+    // Calculate the delta time since the last update (millis overflow resistant)
     unsigned long deltaTimeMs = 0;
-    
     if (currentTimeMs < _lastUpdateTimeMs) {
         deltaTimeMs = (ULONG_MAX - _lastUpdateTimeMs) + currentTimeMs + 1;
     } else {
         deltaTimeMs = currentTimeMs - _lastUpdateTimeMs;
     }
+
+    // Stop here if no subtential time has passed to reduce executed instruction count
+    if (deltaTimeMs == 0) {
+        return;
+    }
     
     _lastUpdateTimeMs = currentTimeMs;
 
-    _timeLeftBeforeUpdateMs = max(0, _timeLeftBeforeUpdateMs - deltaTimeMs);
+    // Update time left before an update without (underflow resistant)
+    if (_timeLeftBeforeUpdateMs > deltaTimeMs) {
+        _timeLeftBeforeUpdateMs = _timeLeftBeforeUpdateMs - deltaTimeMs;
+    } else {
+        _timeLeftBeforeUpdateMs = 0;
+    }
 
-    if (_timeLeftBeforeUpdateMs <= 0) {
+    if (_timeLeftBeforeUpdateMs == 0) {
         _updateState();
     }
 }
 
-bool SimplifiedSwitch::getState() {
+const bool SimplifiedSwitch::getState() const {
     return _state;
 }
 
-bool SimplifiedSwitch::getStateUpdated() {
+const bool SimplifiedSwitch::getStateUpdated() const {
     return _stateUpdated;
 }
 void SimplifiedSwitch::resetStateUpdated() {
     _stateUpdated = false;
 }
 
-void SimplifiedSwitch::_updateState(bool dontUpdateStateUpdated) {
-    bool newState = digitalRead(_pin) == HIGH;
+void SimplifiedSwitch::_updateState() {
+    const bool newState = digitalRead(_pin) == (_pullup ? LOW : HIGH);
 
     if (newState != _state) {
         _timeLeftBeforeUpdateMs = _debounceDurationMs;
-
-        if (!dontUpdateStateUpdated) {
-            _stateUpdated = !_stateUpdated;
-        }
+        _stateUpdated = !_stateUpdated;
     }
 
     _state = newState;

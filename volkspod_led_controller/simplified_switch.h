@@ -26,38 +26,41 @@
 // | IN THE SOFTWARE.                                                             |
 // +------------------------------------------------------------------------------+
 
+// ----- Arduino Framework --------------------------------------------------------
+
+#include <Arduino.h>
+
 // ----- Simplified Switch Class --------------------------------------------------
 
 #ifndef _SIMPLIFIED_SWITCH_CLASS_H_
 #define _SIMPLIFIED_SWITCH_CLASS_H_
 
-#include <Arduino.h>
-#include <limits.h>
-
 class SimplifiedSwitch {
     public:
         SimplifiedSwitch(
-            uint8_t pin,
-            unsigned long debounceDurationMs = 50
+            const uint8_t pin,
+            const unsigned long debounceDurationMs = 50,
+            const bool pullup = false
         );
 
-        void update(unsigned long currentTimeMs);
+        void update(const unsigned long currentTimeMs);
 
-        bool getState();
+        const bool getState() const;
 
-        bool getStateUpdated();
+        const bool getStateUpdated() const;
         void resetStateUpdated();
 
     private:
         const uint8_t _pin;
         const unsigned long _debounceDurationMs;
+        const bool _pullup;
 
-        unsigned long _lastUpdateTimeMs = 0;
-        unsigned long _timeLeftBeforeUpdateMs = 0; // For debouncing purposes only
+        unsigned long _lastUpdateTimeMs = 0; // Last update time point
+        unsigned long _timeLeftBeforeUpdateMs = 0; // For debouncing purposes
         bool _state;
         bool _stateUpdated;
 
-        void _updateState(bool dontUpdateStateUpdated = false);
+        void _updateState();
 };
 
 #endif
