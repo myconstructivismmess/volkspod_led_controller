@@ -31,35 +31,48 @@
 #include "neopixel_manager.h"
 
 NeopixelManager::NeopixelManager(
-    const Adafruit_NeoPixel* neopixel,
-    const NeopixelLayer* layers[],
+    Adafruit_NeoPixel* neopixel,
+    NeopixelLayer* const* layers,
     const size_t layersCount
 ) :
     _neopixel(neopixel),
     _layers(layers),
     _layersCount(layersCount)
 {
-    for (size_t layerIndex = 0; layerIndex < layersCount; layerIndex++) {
-        _layers[layerIndex]->setManager(&this);
-    }
+    
 }
 
-void NeopixelManager::begin() {
+void NeopixelManager::begin() const {
+    // Initialize the Neopixel
     _neopixel->begin();
-           
-    _neopixel->clear();
+
+    // Initialize the link with the layers for messages purposes
+    for (size_t layerIndex = 0; layerIndex < _layersCount; layerIndex++) {
+        _layers[layerIndex]->_setManager(this);
+    }
+
+    // Initial Rendering of the Neopixel
     _renderAll();
 }
 
-void NeopixelManager::_onNeopixelLayerUpdated(NeopixelLayer* layer) {
-    _renderFramed(layer->getStartIndex() && layer->getEndIndex());
+void NeopixelManager::_onNeopixelLayerUpdated(const NeopixelLayer* layer) const {
+    _renderFramed(layer->getStartIndex(), layer->getEndIndex());
 }
 
-void NeopixelManager::_renderAll() {
-    uint16_t pixelCount = _selectedNeopixelManager.numPixels();
-    _render_framed(0, pixelCount - 1);
+void NeopixelManager::_renderAll() const {
+    uint16_t pixelCount = _neopixel->numPixels();
+    _renderFramed(0, pixelCount - 1);
 }
-void NeopixelManager::_renderFramed(uint16_t startIndex, uint16_t endIndex) {
+void NeopixelManager::_renderFramed(const uint16_t startIndex, const uint16_t endIndex) const {
+    if (_layersCount == 0) {
+        for (uint16_t index = startIndex; index <= endIndex; index++) {
+            _neopixel->setPixelColor(index, 0);
+        }
+        _neopixel->show();
+        
+        return;
+    }
+
     // Iterating over all pixels in the provided frame to rerender them
     for (uint16_t index = startIndex; index <= endIndex; index++) {
         size_t layerIndex = _layersCount - 1;
@@ -67,12 +80,14 @@ void NeopixelManager::_renderFramed(uint16_t startIndex, uint16_t endIndex) {
         Color color = { 0, 0, 0 };
 
         // Finding the first layer that doesn't need the pixel colors from preceding layers.
-        while (layerIndex > 0) {
-            NeopixelLayer* layer = _layers[layerIndex];
+        do {
+            const NeopixelLayer* layer = _layers[layerIndex];
 
             if (!layer->isEnabled() || index < layer->getStartIndex() || layer->getEndIndex() < index) {
                 // Pixel out of layer bounds or layer disabled, Skipping
-                layerIndex--;
+                if (layerIndex > 0) {
+                    layerIndex--;
+                }
                 continue;
             }
 
@@ -82,14 +97,16 @@ void NeopixelManager::_renderFramed(uint16_t startIndex, uint16_t endIndex) {
                 break;
             }
 
-            layerIndex--;
-        }
+            if (layerIndex > 0) {
+                layerIndex--;
+            }
+        } while (layerIndex > 0);
 
         if (lastLayerEncouteredToRender != _layersCount) {
             layerIndex = lastLayerEncouteredToRender;
 
             while (layerIndex < _layersCount) {
-                NeopixelLayer* layer = _layers[layerIndex];
+                const NeopixelLayer* layer = _layers[layerIndex];
 
                 if (!layer->isEnabled() || index < layer->getStartIndex() || layer->getEndIndex() < index) {
                     // Pixel out of layer bounds or layer disabled, Skipping
@@ -98,6 +115,7 @@ void NeopixelManager::_renderFramed(uint16_t startIndex, uint16_t endIndex) {
                 }
 
                 color = layer->getPixelColor(color, index);
+                layerIndex++;
             }
         }
 

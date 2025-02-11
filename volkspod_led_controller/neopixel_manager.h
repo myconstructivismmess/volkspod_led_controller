@@ -30,34 +30,41 @@
 
 #include <Adafruit_NeoPixel.h>
 
+// ----- Arduino Framework --------------------------------------------------------
+
+#include <Arduino.h>
+
 // ----- Neopixel Manager Class ---------------------------------------------------
 
 #ifndef _NEOPIXEL_MANAGER_CLASS_H_
 #define _NEOPIXEL_MANAGER_CLASS_H_
 
-#include <Arduino.h>
 #include "color.h"
 #include "neopixel_layer.h"
 
+// Forward Declaration of NeopixelLayer class
+class NeopixelLayer;
+
 class NeopixelManager {
+    friend class NeopixelLayer;
+  
     public:
         NeopixelManager(
-            const Adafruit_NeoPixel* neopixel,
-            const NeopixelLayer* layers[],
+            Adafruit_NeoPixel* neopixel,
+            NeopixelLayer* const* layers,
             const size_t layersCount
         );
 
-        void begin();
-
+        void begin() const;
     private:
-        const Adafruit_NeoPixel* _neopixel;
+        Adafruit_NeoPixel* _neopixel;
         const size_t _layersCount;
-        const NeopixelLayer* _layers[];
+        NeopixelLayer* const* _layers;
 
-        void _onNeopixelLayerUpdated(NeopixelLayer* layer);
+        void _onNeopixelLayerUpdated(const NeopixelLayer* layer) const;
 
-        void _renderAll();
-        void _renderFramed(uint16_t startIndex, uint16_t endIndex);
+        void _renderAll() const;
+        void _renderFramed(const uint16_t startIndex, const uint16_t endIndex) const;
 };
 
 #endif
