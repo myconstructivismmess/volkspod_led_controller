@@ -31,9 +31,9 @@
 #include "on_off_layer.h"
 
 OnOffLayer::OnOffLayer(
-    uint16_t startIndex,
-    uint16_t endIndex,
-    Color color
+    const uint16_t startIndex,
+    const uint16_t endIndex,
+    const Color color
 ) :
     NeopixelLayer(
         startIndex,
@@ -42,13 +42,26 @@ OnOffLayer::OnOffLayer(
     _color(color)
 {}
 
-bool OnOffLayer::isEnabled() {
+void OnOffLayer::enable() {
+    if (!_enabled) {
+        _enabled = true;
+        _sendUpdateMessageToManager();
+    }
+}
+void OnOffLayer::disable() {
+    if (_enabled) {
+        _enabled = false;
+        _sendUpdateMessageToManager();
+    }
+}
+
+bool OnOffLayer::isEnabled() const {
     return _enabled;
 }
-Color OnOffLayer::getPixelColor(Color backgroundColor, uint16_t index) {
+Color OnOffLayer::getPixelColor(Color backgroundColor, uint16_t index) const {
     return _color;
 }
-bool OnOffLayer::hasNeedForBackgroundPixelColor(uint16_t index) {
+bool OnOffLayer::hasNeedForBackgroundPixelColor(uint16_t index) const {
     return false;
 }
 

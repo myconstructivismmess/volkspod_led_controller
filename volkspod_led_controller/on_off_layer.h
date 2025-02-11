@@ -26,32 +26,35 @@
 // | IN THE SOFTWARE.                                                             |
 // +------------------------------------------------------------------------------+
 
+// ----- Arduino Framework --------------------------------------------------------
+
+#include <Arduino.h>
+
 // ----- On Off Layer Class -------------------------------------------------------
 
 #ifndef _ON_OFF_LAYER_CLASS_H_
 #define _ON_OFF_LAYER_CLASS_H_
 
+#include "neopixel_layer.h"
+
 class OnOffLayer : public NeopixelLayer {
     public:
         OnOffLayer(
-            uint16_t startIndex,
-            uint16_t endIndex,
-            Color color
+            const uint16_t startIndex,
+            const uint16_t endIndex,
+            const Color color
         );
 
-        void enable() {
-            _enabled = true;
-        }
-        void disable() {
-            _enabled = false;
-        }
-    protected:
-        bool isEnabled() override;
-        Color getPixelColor(Color backgroundColor, uint16_t index) override;
-        bool hasNeedForBackgroundPixelColor(uint16_t index) override;
+        void enable();
+        void disable();
+
+        bool isEnabled() const override;
+        Color getPixelColor(const Color backgroundColor, const uint16_t index) const override;
+        bool hasNeedForBackgroundPixelColor(const uint16_t index) const override;
     private:
         const Color _color;
-        bool _enabled = true;
+
+        bool _enabled = false;
 };
 
 #endif
