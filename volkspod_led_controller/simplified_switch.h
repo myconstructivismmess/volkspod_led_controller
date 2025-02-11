@@ -56,7 +56,7 @@ class SimplifiedSwitch {
         const bool _pullup;
 
         unsigned long _lastUpdateTimeMs = 0; // Last update time point
-        unsigned long _timeLeftBeforeUpdateMs = 0; // For debouncing purposes
+        unsigned long _timeLeftBeforeUpdateMs = 0; // For debouncing purpose
         bool _state;
         bool _stateUpdated;
 
