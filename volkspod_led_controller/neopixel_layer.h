@@ -30,36 +30,46 @@
 
 #include <Adafruit_NeoPixel.h>
 
+// ----- Arduino Framework --------------------------------------------------------
+
+#include <Arduino.h>
+
 // ----- Neopixel Layer Class -----------------------------------------------------
 
 #ifndef _NEOPIXEL_LAYER_CLASS_H_
 #define _NEOPIXEL_LAYER_CLASS_H_
 
-#include <Arduino.h>
 #include "color.h"
 #include "neopixel_manager.h"
 
+// Forward Declaration of NeopixelManager class
 class NeopixelManager;
 
 class NeopixelLayer {
-    friend NeopixelManager::_renderFramed(uint16_t startIndex, uint16_t endIndex);
+    friend class NeopixelManager;
 
     public:
-        NeopixelLayer(uint16_t startIndex, uint16_t endIndex);
+        NeopixelLayer(const uint16_t startIndex, const uint16_t endIndex);
 
-        void setManager(NeopixelManager* manager);
+        const uint16_t getStartIndex() const;
+        const uint16_t getEndIndex() const;
 
-        uint16_t getStartIndex();
-        uint16_t getEndIndex();
+        // Methods to setup in class that inherits from NeopixelLayer
+        virtual bool isEnabled() const = 0;
+        virtual Color getPixelColor(const Color backgroundColor, const uint16_t index) const = 0;
+        virtual bool hasNeedForBackgroundPixelColor(const uint16_t index) const = 0;
         
     protected:
-        virtual bool isEnabled() = 0;
-        virtual Color getPixelColor(Color backgroundColor, uint16_t index) = 0;
-        virtual bool hasNeedForBackgroundPixelColor(uint16_t index) = 0;
+        void _sendUpdateMessageToManager() const;
+
     private:
-        NeopixelManager* _manager;
         const uint16_t _startIndex;
         const uint16_t _endIndex;
+
+        const NeopixelManager* _manager = nullptr;
+
+        // Should only be accessed by NeopixelManager begin method
+        void _setManager(const NeopixelManager* manager);
 };
 
 #endif

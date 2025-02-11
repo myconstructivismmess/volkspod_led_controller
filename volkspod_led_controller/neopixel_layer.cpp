@@ -31,21 +31,27 @@
 #include "neopixel_layer.h"
 
 NeopixelLayer::NeopixelLayer(
-    uint16_t startIndex,
-    uint16_t endIndex
+    const uint16_t startIndex,
+    const uint16_t endIndex
 ) :
     _startIndex(startIndex),
     _endIndex(endIndex)
 {}
 
-uint16_t NeopixelLayer::getStartIndex() {
+const uint16_t NeopixelLayer::getStartIndex() const {
     return _startIndex;
 }
-uint16_t NeopixelLayer::getEndIndex() {
+const uint16_t NeopixelLayer::getEndIndex() const {
     return _endIndex;
 }
 
-void setManager(NeopixelManager* manager) {
+void NeopixelLayer::_sendUpdateMessageToManager() const {
+    if (_manager != nullptr) {
+        _manager->_onNeopixelLayerUpdated(this);
+    }
+}
+
+void NeopixelLayer::_setManager(const NeopixelManager* manager) {
     _manager = manager;
 }
 
