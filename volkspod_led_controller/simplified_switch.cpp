@@ -26,13 +26,10 @@
 // | IN THE SOFTWARE.                                                             |
 // +------------------------------------------------------------------------------+
 
-// ----- Cpp Headers --------------------------------------------------------------
-
-#include <limits.h>
-
 // ----- Simplified Switch Class --------------------------------------------------
 
 #include "simplified_switch.h"
+#include "delta_time.h"
 
 SimplifiedSwitch::SimplifiedSwitch(
     const uint8_t pin,
@@ -63,13 +60,7 @@ SimplifiedSwitch::SimplifiedSwitch(
 }
 
 void SimplifiedSwitch::update(const unsigned long currentTimeMs) {
-    // Calculate the delta time since the last update (millis overflow resistant)
-    unsigned long deltaTimeMs = 0;
-    if (currentTimeMs < _lastUpdateTimeMs) {
-        deltaTimeMs = (ULONG_MAX - _lastUpdateTimeMs) + currentTimeMs + 1;
-    } else {
-        deltaTimeMs = currentTimeMs - _lastUpdateTimeMs;
-    }
+    const unsigned long deltaTimeMs = DeltaTime.calculate(currentTimeMs, _lastUpdateTimeMs);
 
     // Stop here if no subtential time has passed to reduce executed instruction count
     if (deltaTimeMs == 0) {
