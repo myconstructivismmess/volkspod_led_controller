@@ -60,7 +60,7 @@ SimplifiedSwitch::SimplifiedSwitch(
 }
 
 void SimplifiedSwitch::update(const unsigned long currentTimeMs) {
-    const unsigned long deltaTimeMs = DeltaTime.calculate(currentTimeMs, _lastUpdateTimeMs);
+    const unsigned long deltaTimeMs = DeltaTime::calculate(currentTimeMs, _lastUpdateTimeMs);
 
     // Stop here if no subtential time has passed to reduce executed instruction count
     if (deltaTimeMs == 0) {
