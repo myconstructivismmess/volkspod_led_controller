@@ -37,9 +37,9 @@
 const unsigned long DeltaTime::calculate(const unsigned long currentTimeMs, const unsigned long lastTimeMs) {
     if (currentTimeMs < lastTimeMs) {
         return (ULONG_MAX - lastTimeMs) + currentTimeMs + 1;
-    } else {
-        return currentTimeMs - lastTimeMs;
     }
+
+    return currentTimeMs - lastTimeMs;
 }
 
 // --------------------------------------------------------------------------------
