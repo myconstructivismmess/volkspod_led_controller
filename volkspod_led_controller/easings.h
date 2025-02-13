@@ -33,7 +33,7 @@
 
 class Easings {
     public:
-        static const float easeOutCirc(const float time) const;
+        static const float easeInOutCubic(const float time);
 };
 
 #endif

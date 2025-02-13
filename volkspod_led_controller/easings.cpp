@@ -34,8 +34,8 @@
 
 #include "easings.h"
 
-const float Easings::easeOutCirc(const float time) const {
-    return sqrt(1 - pow(x - 1, 2)
-};
+const float Easings::easeInOutCubic(const float time) {
+    return (time < 0.5) ? (4 * time * time * time) : (1 - pow(-2 * time + 2, 3) / 2);
+}
 
 // --------------------------------------------------------------------------------
