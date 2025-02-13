@@ -80,15 +80,17 @@ void NeopixelManager::_renderFramed(const uint16_t startIndex, const uint16_t en
         Color color = { 0, 0, 0 };
 
         // Finding the first layer that doesn't need the pixel colors from preceding layers.
-        do {
+        while (true) {
             const NeopixelLayer* layer = _layers[layerIndex];
 
             if (!layer->isEnabled() || index < layer->getStartIndex() || layer->getEndIndex() < index) {
                 // Pixel out of layer bounds or layer disabled, Skipping
                 if (layerIndex > 0) {
                     layerIndex--;
+                    continue;
+                } else {
+                    break;
                 }
-                continue;
             }
 
             lastLayerEncouteredToRender = layerIndex;
@@ -99,8 +101,10 @@ void NeopixelManager::_renderFramed(const uint16_t startIndex, const uint16_t en
 
             if (layerIndex > 0) {
                 layerIndex--;
+            } else {
+                break;
             }
-        } while (layerIndex > 0);
+        }
 
         if (lastLayerEncouteredToRender != _layersCount) {
             layerIndex = lastLayerEncouteredToRender;
