@@ -30,7 +30,7 @@
 
 #include <Arduino.h>
 
-// ----- On Off Layer Class -------------------------------------------------------
+// ----- Front LED On Off Layer Class ---------------------------------------------
 
 #ifndef _FRONT_LED_ON_OFF_LAYER_CLASS_H_
 #define _FRONT_LED_ON_OFF_LAYER_CLASS_H_
@@ -54,7 +54,7 @@ class FrontLedOnOffLayer : public NeopixelLayer {
         bool isEnabled() const override;
         Color getPixelColor(const Color backgroundColor, const uint16_t index) const override;
         bool hasNeedForBackgroundPixelColor(const uint16_t index) const override;
-        
+
     private:
         const unsigned long _animationDurationMs;
         const Color _color;

@@ -30,6 +30,7 @@
 
 #include "front_led_on_off_layer.h"
 #include "delta_time.h"
+#include "easings.h"
 
 FrontLedOnOffLayer::FrontLedOnOffLayer(
     const uint16_t pixelCount,
@@ -77,7 +78,8 @@ void FrontLedOnOffLayer::update(unsigned long currentTimeMs) {
     }
 
     if (animationTimeMsUpdated) {
-        const uint16_t newAnimationPosition = _animationTimeMs * (getEndIndex() + 1) / _animationDurationMs;
+        const float time = Easings::easeInOutCubic((float)_animationTimeMs / _animationDurationMs);
+        const uint16_t newAnimationPosition = time * (getEndIndex() + 1);
         if (_animationPosition != newAnimationPosition) {
             _animationPosition = newAnimationPosition;
             _sendUpdateMessageToManager();
