@@ -56,6 +56,7 @@ class NeopixelManager {
         );
 
         void begin() const;
+        
     private:
         Adafruit_NeoPixel* _neopixel;
         const size_t _layersCount;

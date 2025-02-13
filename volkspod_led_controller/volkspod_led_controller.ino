@@ -34,7 +34,7 @@
 
 #include "simplified_switch.h"
 #include "neopixel_manager.h"
-#include "on_off_layer.h"
+#include "front_led_on_off_layer.h"
 #include "color.h"
 
 // ----- Settings -----------------------------------------------------------------
@@ -75,7 +75,11 @@ SimplifiedSwitch ledOnOffSwitch(LIGHT_ON_OFF_SWITCH_PIN);
 
 // ----- Front Neopixel Layers ----------------------------------------------------
 
-OnOffLayer ledOnOffFrontLayer(0, 59, Color{255, 255, 255});
+FrontLedOnOffLayer ledOnOffFrontLayer(
+    FRONT_NEOPIXEL_PIXEL_COUNT,
+    600,
+    Color{255, 255, 255}
+);
 
 #define FRONT_NEOPIXEL_LAYERS_COUNT 1
 NeopixelLayer* frontNeopixelLayers[FRONT_NEOPIXEL_LAYERS_COUNT] = {
@@ -185,6 +189,8 @@ void setup() {
     
     print_buttons_state();
 
+    Serial.flush();
+
 #endif
 
 }
@@ -219,6 +225,8 @@ void loop() {
         ledOnOffSwitch.resetStateUpdated();
         onLedOnOffSwitchChange();
     }
+
+    ledOnOffFrontLayer.update(currentTimeMs);
 }
 
 // ----- Events -------------------------------------------------------------------
