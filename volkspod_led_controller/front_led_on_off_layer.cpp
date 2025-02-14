@@ -78,8 +78,8 @@ void FrontLedOnOffLayer::update(unsigned long currentTimeMs) {
     }
 
     if (animationTimeMsUpdated) {
-        const float time = Easings::easeInOutCubic((float)_animationTimeMs / _animationDurationMs);
-        const uint16_t newAnimationPosition = time * (getEndIndex() + 1);
+        const float easedTime = Easings::easeInOutCubic((float)_animationTimeMs / _animationDurationMs);
+        const uint16_t newAnimationPosition = easedTime * (getEndIndex() + 1);
         if (_animationPosition != newAnimationPosition) {
             _animationPosition = newAnimationPosition;
             _sendUpdateMessageToManager();
