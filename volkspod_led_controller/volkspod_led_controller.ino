@@ -37,10 +37,19 @@
 #include "front_led_on_off_layer.h"
 #include "color.h"
 
+#include "front_led_on_off_layer.h"
+#include "back_led_on_off_layer.h"
+
 // ----- Settings -----------------------------------------------------------------
 
 // Debug Settings
 #define DEBUG
+
+// Color Settings
+const Color white = Color{255, 255, 255};
+
+// Animation Settings
+#define LED_ON_OFF_ANIMATION_DURATION 600
 
 // Experimentation Sensors And Switches Settings
 #define BRAKE_SENSOR_PIN 12
@@ -59,6 +68,9 @@
 #define FRONT_NEOPIXEL_PIXEL_COUNT 60
 #define BACK_NEOPIXEL_PIN 5
 #define BACK_NEOPIXEL_PIXEL_COUNT 37 // 16 + 12 + 8 + 1
+#define BACK_NEOPIXEL_RING_2_START_INDEX 16
+#define BACK_NEOPIXEL_RING_3_START_INDEX 28
+#define BACK_NEOPIXEL_RING_4_START_INDEX 36
 
 // Neopixel Settings
 //#define FRONT_NEOPIXEL_PIN 6
@@ -77,8 +89,9 @@ SimplifiedSwitch ledOnOffSwitch(LIGHT_ON_OFF_SWITCH_PIN);
 
 FrontLedOnOffLayer ledOnOffFrontLayer(
     FRONT_NEOPIXEL_PIXEL_COUNT,
-    600,
-    Color{255, 255, 255}
+    LED_ON_OFF_ANIMATION_DURATION,
+    white
+);
 );
 
 #define FRONT_NEOPIXEL_LAYERS_COUNT 1
@@ -88,10 +101,18 @@ NeopixelLayer* frontNeopixelLayers[FRONT_NEOPIXEL_LAYERS_COUNT] = {
 
 // ----- Back Neopixel Layers -----------------------------------------------------
 
-//NeopixelLayer ledOnOffBackLayer;
+BackLedOnOffLayer ledOnOffBackLayer(
+    BACK_NEOPIXEL_PIXEL_COUNT,
+    BACK_NEOPIXEL_RING_2_START_INDEX,
+    BACK_NEOPIXEL_RING_3_START_INDEX,
+    BACK_NEOPIXEL_RING_4_START_INDEX,
+    LED_ON_OFF_ANIMATION_DURATION,
+    white
+);
 
-#define BACK_NEOPIXEL_LAYERS_COUNT 0
+#define BACK_NEOPIXEL_LAYERS_COUNT 1
 NeopixelLayer* backNeopixelLayers[BACK_NEOPIXEL_LAYERS_COUNT] = {
+    &ledOnOffBackLayer
 };
 
 // ----- Neopixels ----------------------------------------------------------------
@@ -104,7 +125,7 @@ Adafruit_NeoPixel frontNeopixel(
 NeopixelManager frontNeopixelManager(
     &frontNeopixel,
     &frontNeopixelLayers[0],
-    1
+    FRONT_NEOPIXEL_LAYERS_COUNT
 );
 
 Adafruit_NeoPixel backNeopixel(
@@ -115,7 +136,7 @@ Adafruit_NeoPixel backNeopixel(
 NeopixelManager backNeopixelManager(
     &backNeopixel,
     &backNeopixelLayers[0],
-    0
+    BACK_NEOPIXEL_LAYERS_COUNT
 );
 
 // ----- Debug Functions ----------------------------------------------------------
@@ -227,6 +248,8 @@ void loop() {
     }
 
     ledOnOffFrontLayer.update(currentTimeMs);
+
+    ledOnOffBackLayer.update(currentTimeMs);
 }
 
 // ----- Events -------------------------------------------------------------------
@@ -287,9 +310,11 @@ void onLedOnOffSwitchChange() {
     if (ledOnOffSwitch.getState()) {
         // LED is on
         ledOnOffFrontLayer.enable();
+        ledOnOffBackLayer.enable();
     } else {
         // LED is off
         ledOnOffFrontLayer.disable();
+        ledOnOffBackLayer.disable();
     }
 }
 
