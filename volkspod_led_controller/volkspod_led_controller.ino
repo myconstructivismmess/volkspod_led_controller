@@ -20,7 +20,9 @@
 #include "color.h"
 
 #include "front_led_on_off_layer.h"
+
 #include "back_led_on_off_layer.h"
+#include "back_brake_layer.h"
 
 // ----- Settings -----------------------------------------------------------------
 
@@ -29,9 +31,13 @@
 
 // Color Settings
 const Color white = Color{255, 255, 255};
+const Color brakeColor = Color{255, 0, 0};
 
 // Animation Settings
 #define LED_ON_OFF_ANIMATION_DURATION 600
+#define BRAKE_ANIMATION_SETUP_DURATION 600
+#define BRAKE_ANIMATION_BREATHING_DURATION 800
+#define BRAKE_ANIMATION_BREATHING_DOWN_POWER_RATIO 0.3
 
 // Experimentation Sensors And Switches Settings
 #define BRAKE_SENSOR_PIN 12
@@ -92,9 +98,18 @@ BackLedOnOffLayer ledOnOffBackLayer(
     white
 );
 
-#define BACK_NEOPIXEL_LAYERS_COUNT 1
+BackBrakeLayer brakeBackLayer(
+    BACK_NEOPIXEL_RING_2_START_INDEX,
+    BRAKE_ANIMATION_SETUP_DURATION,
+    BRAKE_ANIMATION_BREATHING_DURATION,
+    BRAKE_ANIMATION_BREATHING_DOWN_POWER_RATIO,
+    brakeColor
+);
+
+#define BACK_NEOPIXEL_LAYERS_COUNT 2
 NeopixelLayer* backNeopixelLayers[BACK_NEOPIXEL_LAYERS_COUNT] = {
-    &ledOnOffBackLayer
+    &ledOnOffBackLayer,
+    &brakeBackLayer
 };
 
 // ----- Neopixels ----------------------------------------------------------------
@@ -232,6 +247,7 @@ void loop() {
     ledOnOffFrontLayer.update(currentTimeMs);
 
     ledOnOffBackLayer.update(currentTimeMs);
+    brakeBackLayer.update(currentTimeMs);
 }
 
 // ----- Events -------------------------------------------------------------------
@@ -246,8 +262,10 @@ void onBrakeSensorChange() {
 
     if (brakeSensor.getState()) {
         // Brake is pressed
+        brakeBackLayer.enable();
     } else {
         // Brake is released
+        brakeBackLayer.disable();
     }
 }
 
