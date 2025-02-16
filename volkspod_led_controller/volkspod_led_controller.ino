@@ -16,12 +16,9 @@
 
 #include "simplified_switch.h"
 #include "neopixel_manager.h"
-#include "front_led_on_off_layer.h"
 #include "color.h"
 
-#include "front_led_on_off_layer.h"
-
-#include "back_led_on_off_layer.h"
+#include "led_on_off_layer.h"
 #include "back_brake_layer.h"
 
 // ----- Settings -----------------------------------------------------------------
@@ -75,12 +72,13 @@ SimplifiedSwitch ledOnOffSwitch(LIGHT_ON_OFF_SWITCH_PIN);
 
 // ----- Front Neopixel Layers ----------------------------------------------------
 
-FrontLedOnOffLayer ledOnOffFrontLayer(
-    FRONT_NEOPIXEL_PIXEL_COUNT,
+LedOnOffLayer ledOnOffFrontLayer(
+    0,
+    FRONT_NEOPIXEL_PIXEL_COUNT - 1,
     LED_ON_OFF_ANIMATION_DURATION,
     white
 );
-);
+
 
 #define FRONT_NEOPIXEL_LAYERS_COUNT 1
 NeopixelLayer* frontNeopixelLayers[FRONT_NEOPIXEL_LAYERS_COUNT] = {
@@ -89,11 +87,27 @@ NeopixelLayer* frontNeopixelLayers[FRONT_NEOPIXEL_LAYERS_COUNT] = {
 
 // ----- Back Neopixel Layers -----------------------------------------------------
 
-BackLedOnOffLayer ledOnOffBackLayer(
-    BACK_NEOPIXEL_PIXEL_COUNT,
+LedOnOffLayer ledOnOffBackLayer1(
+    0,
+    BACK_NEOPIXEL_RING_2_START_INDEX - 1,
+    LED_ON_OFF_ANIMATION_DURATION,
+    white
+);
+LedOnOffLayer ledOnOffBackLayer2(
     BACK_NEOPIXEL_RING_2_START_INDEX,
+    BACK_NEOPIXEL_RING_3_START_INDEX - 1,
+    LED_ON_OFF_ANIMATION_DURATION,
+    white
+);
+LedOnOffLayer ledOnOffBackLayer3(
     BACK_NEOPIXEL_RING_3_START_INDEX,
+    BACK_NEOPIXEL_RING_4_START_INDEX - 1,
+    LED_ON_OFF_ANIMATION_DURATION,
+    white
+);
+LedOnOffLayer ledOnOffBackLayer4(
     BACK_NEOPIXEL_RING_4_START_INDEX,
+    BACK_NEOPIXEL_PIXEL_COUNT - 1,
     LED_ON_OFF_ANIMATION_DURATION,
     white
 );
@@ -106,9 +120,12 @@ BackBrakeLayer brakeBackLayer(
     brakeColor
 );
 
-#define BACK_NEOPIXEL_LAYERS_COUNT 2
+#define BACK_NEOPIXEL_LAYERS_COUNT 5
 NeopixelLayer* backNeopixelLayers[BACK_NEOPIXEL_LAYERS_COUNT] = {
-    &ledOnOffBackLayer,
+    &ledOnOffBackLayer1,
+    &ledOnOffBackLayer2,
+    &ledOnOffBackLayer3,
+    &ledOnOffBackLayer4,
     &brakeBackLayer
 };
 
@@ -246,7 +263,10 @@ void loop() {
 
     ledOnOffFrontLayer.update(currentTimeMs);
 
-    ledOnOffBackLayer.update(currentTimeMs);
+    ledOnOffBackLayer1.update(currentTimeMs);
+    ledOnOffBackLayer2.update(currentTimeMs);
+    ledOnOffBackLayer3.update(currentTimeMs);
+    ledOnOffBackLayer4.update(currentTimeMs);
     brakeBackLayer.update(currentTimeMs);
 }
 
@@ -310,11 +330,19 @@ void onLedOnOffSwitchChange() {
     if (ledOnOffSwitch.getState()) {
         // LED is on
         ledOnOffFrontLayer.enable();
-        ledOnOffBackLayer.enable();
+
+        ledOnOffBackLayer1.enable();
+        ledOnOffBackLayer2.enable();
+        ledOnOffBackLayer3.enable();
+        ledOnOffBackLayer4.enable();
     } else {
         // LED is off
         ledOnOffFrontLayer.disable();
-        ledOnOffBackLayer.disable();
+
+        ledOnOffBackLayer1.disable();
+        ledOnOffBackLayer2.disable();
+        ledOnOffBackLayer3.disable();
+        ledOnOffBackLayer4.disable();
     }
 }
 

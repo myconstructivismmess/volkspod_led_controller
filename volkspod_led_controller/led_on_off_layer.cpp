@@ -1,6 +1,6 @@
 // +------------------------------------------------------------------------------+
-// | filename: front_led_on_off_layer.cpp                                         |
-// | filepath: volkspod_led_controller/front_led_on_off_layer.cpp                 |
+// | filename: led_on_off_layer.cpp                                               |
+// | filepath: volkspod_led_controller/led_on_off_layer.cpp                       |
 // | project name: volkspod_led_controller                                        |
 // | authors: Aubrey ROUET <aubrey.rouet@gmail.com>                               |
 // | license: Proprietary                                                         |
@@ -8,21 +8,23 @@
 // | Copyright (c) 2025 Aubrey ROUET                                              |
 // +------------------------------------------------------------------------------+
 
-// ----- Front On Off Layer Class -------------------------------------------------
+// ----- Led On Off Layer Class ---------------------------------------------------
 
-#include "front_led_on_off_layer.h"
+#include "led_on_off_layer.h"
 #include "delta_time.h"
 #include "easings.h"
 
-FrontLedOnOffLayer::FrontLedOnOffLayer(
-    const uint16_t pixelCount,
+LedOnOffLayer::LedOnOffLayer(
+    const uint16_t startIndex,
+    const uint16_t endIndex,
     const unsigned long animationDurationMs,
     const Color color
 ) :
     NeopixelLayer(
-        0,
-        pixelCount - 1
+        startIndex,
+        endIndex
     ),
+    _layerLength(endIndex - startIndex + 1),
     _animationDurationMs(animationDurationMs),
     _color(color)
 {
@@ -30,7 +32,7 @@ FrontLedOnOffLayer::FrontLedOnOffLayer(
     _lastUpdateTimeMs = currentTimeMs;
 }
 
-void FrontLedOnOffLayer::update(unsigned long currentTimeMs) {
+void LedOnOffLayer::update(unsigned long currentTimeMs) {
     const unsigned long deltaTimeMs = DeltaTime::calculate(currentTimeMs, _lastUpdateTimeMs);
     _lastUpdateTimeMs = currentTimeMs;
 
@@ -61,7 +63,8 @@ void FrontLedOnOffLayer::update(unsigned long currentTimeMs) {
 
     if (animationTimeMsUpdated) {
         const float easedTime = Easings::easeInOutCubic((float)_animationTimeMs / _animationDurationMs);
-        const uint16_t newAnimationPosition = easedTime * (getEndIndex() + 1);
+        const uint16_t newAnimationPosition = easedTime * _layerLength;
+
         if (_animationPosition != newAnimationPosition) {
             _animationPosition = newAnimationPosition;
             _sendUpdateMessageToManager();
@@ -69,24 +72,27 @@ void FrontLedOnOffLayer::update(unsigned long currentTimeMs) {
     }
 }
 
-void FrontLedOnOffLayer::enable() {
+void LedOnOffLayer::enable() {
     _enabled = true;
 }
-void FrontLedOnOffLayer::disable() {
+void LedOnOffLayer::disable() {
     _enabled = false;
 }
 
-bool FrontLedOnOffLayer::isEnabled() const {
+bool LedOnOffLayer::isEnabled() const {
     return _animationTimeMs != 0;
 }
-Color FrontLedOnOffLayer::getPixelColor(const Color backgroundColor, const uint16_t index) const {
-    if (index < _animationPosition) {
+Color LedOnOffLayer::getPixelColor(const Color backgroundColor, const uint16_t index) const {
+    const uint16_t startIndex = getStartIndex();
+    const uint16_t localIndex = index - startIndex;
+
+    if (localIndex < _animationPosition) {
         return _color;
     }
     
-    return Color {0, 0, 0};
+    return Color{0, 0, 0};
 }
-bool FrontLedOnOffLayer::hasNeedForBackgroundPixelColor(const uint16_t index) const {
+bool LedOnOffLayer::hasNeedForBackgroundPixelColor(const uint16_t index) const {
     return false;
 }
 
