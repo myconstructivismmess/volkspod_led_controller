@@ -41,7 +41,7 @@ void LedOnOffLayer::update(unsigned long currentTimeMs) {
         if (_animationTimeMs != _animationDurationMs) {
             const unsigned long incrementedAnimationTimeMs = _animationTimeMs + deltaTimeMs;
 
-            if (incrementedAnimationTimeMs < _animationTimeMs || incrementedAnimationTimeMs > _animationDurationMs) {
+            if (_animationDurationMs < incrementedAnimationTimeMs || incrementedAnimationTimeMs < _animationTimeMs) {
                 _animationTimeMs = _animationDurationMs;
             } else {
                 _animationTimeMs = incrementedAnimationTimeMs;
@@ -51,7 +51,7 @@ void LedOnOffLayer::update(unsigned long currentTimeMs) {
         }
     } else {
         if (_animationTimeMs != 0) {
-            if (_animationTimeMs > deltaTimeMs) {
+            if (deltaTimeMs < _animationTimeMs) {
                 _animationTimeMs = _animationTimeMs - deltaTimeMs;
             } else {
                 _animationTimeMs = 0;
