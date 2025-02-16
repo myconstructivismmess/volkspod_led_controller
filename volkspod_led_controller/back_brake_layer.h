@@ -25,8 +25,6 @@ class BackBrakeLayer : public NeopixelLayer {
         BackBrakeLayer(
             const uint16_t pixelCount,
             const unsigned long animationSetupDurationMs,
-            const unsigned long animationBreathingDurationMs,
-            const float animationBreathingDownPowerRatio,
             const Color color
         );
 
@@ -41,12 +39,7 @@ class BackBrakeLayer : public NeopixelLayer {
 
     private:
         const unsigned long _animationSetupDurationMs;
-        const unsigned long _animationBreathingDurationMs;
-        const float _animationBreathingDownPowerRatio;
         const Color _color;
-
-        bool _animationBreathingDirection = false;
-        unsigned long _animationBreathingTimeMs = 0;
         
         unsigned long _animationSetupTimeMs = 0;
 

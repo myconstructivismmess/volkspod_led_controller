@@ -17,8 +17,6 @@
 BackBrakeLayer::BackBrakeLayer(
     const uint16_t pixelCount,
     const unsigned long animationSetupDurationMs,
-    const unsigned long animationBreathingDurationMs,
-    const float animationBreathingDownPowerRatio,
     const Color color
 ) :
     NeopixelLayer(
@@ -26,8 +24,6 @@ BackBrakeLayer::BackBrakeLayer(
         pixelCount - 1
     ),
     _animationSetupDurationMs(animationSetupDurationMs),
-    _animationBreathingDurationMs(animationBreathingDurationMs),
-    _animationBreathingDownPowerRatio(animationBreathingDownPowerRatio),
     _color(color)
 {
     const unsigned long currentTimeMs = millis();
@@ -63,62 +59,16 @@ void BackBrakeLayer::update(unsigned long currentTimeMs) {
         }
     }
 
-    bool animationBreathingTimeMsUpdated = false;
-    if (_enabled && _animationSetupTimeMs == _animationSetupDurationMs) {
-        if (_animationBreathingTimeMs == 0) {
-            _animationBreathingDirection = false;
-        } else if (_animationBreathingTimeMs == _animationBreathingDurationMs) {
-            _animationBreathingDirection = true;
-        }
-
-        if (_animationBreathingDirection) {
-            if (_animationBreathingTimeMs > deltaTimeMs) {
-                _animationBreathingTimeMs = _animationBreathingTimeMs - deltaTimeMs;
-            } else {
-                _animationBreathingTimeMs = 0;
-            }
-
-            animationBreathingTimeMsUpdated = true;
-        } else {
-            const unsigned long incrementedBreathingAnimationTimeMs = _animationBreathingTimeMs + deltaTimeMs;
-    
-            if (incrementedBreathingAnimationTimeMs < _animationBreathingTimeMs || incrementedBreathingAnimationTimeMs > _animationBreathingDurationMs) {
-                _animationBreathingTimeMs = _animationBreathingDurationMs;
-            } else {
-                _animationBreathingTimeMs = incrementedBreathingAnimationTimeMs;
-            }
-            
-            animationBreathingTimeMsUpdated = true;
-        }
-    } else {
-        _animationBreathingDirection = false;
-
-        if (_animationBreathingTimeMs != 0) {
-            if (_animationBreathingTimeMs > deltaTimeMs) {
-                _animationBreathingTimeMs = _animationBreathingTimeMs - deltaTimeMs;
-            } else {
-                _animationBreathingTimeMs = 0;
-            }
-
-            animationBreathingTimeMsUpdated = true;
-        }
-    }
-
-    if (animationSetupTimeMsUpdated || animationBreathingTimeMsUpdated) {
+    if (animationSetupTimeMsUpdated) {
         const float easedSetupTime = Easings::easeInOutCubic((float)_animationSetupTimeMs / _animationSetupDurationMs);
-        const float easedBreathingTime = Easings::easeInOutCubic(1.0 - (float)_animationBreathingTimeMs / _animationBreathingDurationMs);
 
-        _animationFinalColorRatio = easedSetupTime * (_animationBreathingDownPowerRatio + (1.0 - _animationBreathingDownPowerRatio) * easedBreathingTime);
+        _animationFinalColorRatio = easedSetupTime;
         _sendUpdateMessageToManager();
     }
 }
 
 void BackBrakeLayer::enable() {
     _enabled = true;
-
-    if (_animationSetupTimeMs == 0) {
-        _animationBreathingTimeMs = 0;
-    }
 }
 void BackBrakeLayer::disable() {
     _enabled = false;
