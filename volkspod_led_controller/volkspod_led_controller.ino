@@ -36,6 +36,8 @@ const Color brakeColor = Color{255, 0, 0};
 #define LED_ON_OFF_ANIMATION_DURATION 600
 
 #define TURN_SIGNAL_ANIMATION_FRONT_LAYER_CARRET_LENGTH 5
+#define TURN_SIGNAL_ANIMATION_BACK_LAYER_RING_1_CARRET_LENGTH 2
+#define TURN_SIGNAL_ANIMATION_BACK_LAYER_RING_2_CARRET_LENGTH 1
 #define TURN_SIGNAL_ANIMATION_DURATION 700
 
 #define BRAKE_ANIMATION_SETUP_DURATION 600
@@ -155,13 +157,79 @@ BackBrakeLayer brakeBackLayer(
     brakeColor
 );
 
-#define BACK_NEOPIXEL_LAYERS_COUNT 5
+TurnSignalLayer turnRightSignalBackLayer1(
+    1,
+    4,
+    TURN_SIGNAL_ANIMATION_BACK_LAYER_RING_1_CARRET_LENGTH,
+    TURN_SIGNAL_ANIMATION_DURATION,
+    turnSignalColor
+);
+TurnSignalLayer turnRightSignalBackLayer2(
+    7,
+    4,
+    TURN_SIGNAL_ANIMATION_BACK_LAYER_RING_1_CARRET_LENGTH,
+    TURN_SIGNAL_ANIMATION_DURATION,
+    turnSignalColor
+);
+TurnSignalLayer turnRightSignalBackLayer3(
+    17,
+    19,
+    TURN_SIGNAL_ANIMATION_BACK_LAYER_RING_2_CARRET_LENGTH,
+    TURN_SIGNAL_ANIMATION_DURATION,
+    turnSignalColor
+);
+TurnSignalLayer turnRightSignalBackLayer4(
+    21,
+    19,
+    TURN_SIGNAL_ANIMATION_BACK_LAYER_RING_2_CARRET_LENGTH,
+    TURN_SIGNAL_ANIMATION_DURATION,
+    turnSignalColor
+);
+
+TurnSignalLayer turnLeftSignalBackLayer1(
+    15,
+    12,
+    TURN_SIGNAL_ANIMATION_BACK_LAYER_RING_1_CARRET_LENGTH,
+    TURN_SIGNAL_ANIMATION_DURATION,
+    turnSignalColor
+);
+TurnSignalLayer turnLeftSignalBackLayer2(
+    9,
+    12,
+    TURN_SIGNAL_ANIMATION_BACK_LAYER_RING_1_CARRET_LENGTH,
+    TURN_SIGNAL_ANIMATION_DURATION,
+    turnSignalColor
+);
+TurnSignalLayer turnLeftSignalBackLayer3(
+    27,
+    25,
+    TURN_SIGNAL_ANIMATION_BACK_LAYER_RING_2_CARRET_LENGTH,
+    TURN_SIGNAL_ANIMATION_DURATION,
+    turnSignalColor
+);
+TurnSignalLayer turnLeftSignalBackLayer4(
+    23,
+    25,
+    TURN_SIGNAL_ANIMATION_BACK_LAYER_RING_2_CARRET_LENGTH,
+    TURN_SIGNAL_ANIMATION_DURATION,
+    turnSignalColor
+);
+
+#define BACK_NEOPIXEL_LAYERS_COUNT 13
 NeopixelLayer* backNeopixelLayers[BACK_NEOPIXEL_LAYERS_COUNT] = {
     &ledOnOffBackLayer1,
     &ledOnOffBackLayer2,
     &ledOnOffBackLayer3,
     &ledOnOffBackLayer4,
-    &brakeBackLayer
+    &brakeBackLayer,
+    &turnLeftSignalBackLayer1,
+    &turnLeftSignalBackLayer2,
+    &turnLeftSignalBackLayer3,
+    &turnLeftSignalBackLayer4,
+    &turnRightSignalBackLayer1,
+    &turnRightSignalBackLayer2,
+    &turnRightSignalBackLayer3,
+    &turnRightSignalBackLayer4
 };
 
 // ----- Neopixels ----------------------------------------------------------------
@@ -308,7 +376,18 @@ void loop() {
     ledOnOffBackLayer2.update(currentTimeMs);
     ledOnOffBackLayer3.update(currentTimeMs);
     ledOnOffBackLayer4.update(currentTimeMs);
+
     brakeBackLayer.update(currentTimeMs);
+
+    turnLeftSignalBackLayer1.update(currentTimeMs);
+    turnLeftSignalBackLayer2.update(currentTimeMs);
+    turnLeftSignalBackLayer3.update(currentTimeMs);
+    turnLeftSignalBackLayer4.update(currentTimeMs);
+
+    turnRightSignalBackLayer1.update(currentTimeMs);
+    turnRightSignalBackLayer2.update(currentTimeMs);
+    turnRightSignalBackLayer3.update(currentTimeMs);
+    turnRightSignalBackLayer4.update(currentTimeMs);
 }
 
 // ----- Events -------------------------------------------------------------------
@@ -342,10 +421,20 @@ void onTurnSignalLeftSwitchChange() {
         // Turn signal left is on
         turnLeftSignalFrontLayer1.enable();
         turnLeftSignalFrontLayer2.enable();
+
+        turnLeftSignalBackLayer1.enable();
+        turnLeftSignalBackLayer2.enable();
+        turnLeftSignalBackLayer3.enable();
+        turnLeftSignalBackLayer4.enable();
     } else {
         // Turn signal left is off
         turnLeftSignalFrontLayer1.disable();
         turnLeftSignalFrontLayer2.disable();
+
+        turnLeftSignalBackLayer1.disable();
+        turnLeftSignalBackLayer2.disable();
+        turnLeftSignalBackLayer3.disable();
+        turnLeftSignalBackLayer4.disable();
     }
 }
 
@@ -361,10 +450,20 @@ void onTurnSignalRightSwitchChange() {
         // Turn signal right is on
         turnRightSignalFrontLayer1.enable();
         turnRightSignalFrontLayer2.enable();
+
+        turnRightSignalBackLayer1.enable();
+        turnRightSignalBackLayer2.enable();
+        turnRightSignalBackLayer3.enable();
+        turnRightSignalBackLayer4.enable();
     } else {
         // Turn signal right is off
         turnRightSignalFrontLayer1.disable();
         turnRightSignalFrontLayer2.disable();
+
+        turnRightSignalBackLayer1.disable();
+        turnRightSignalBackLayer2.disable();
+        turnRightSignalBackLayer3.disable();
+        turnRightSignalBackLayer4.disable();
     }
 }
 
