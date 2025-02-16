@@ -19,6 +19,7 @@
 #include "color.h"
 
 #include "led_on_off_layer.h"
+#include "turn_signal_layer.h"
 #include "back_brake_layer.h"
 
 // ----- Settings -----------------------------------------------------------------
@@ -28,13 +29,18 @@
 
 // Color Settings
 const Color white = Color{255, 255, 255};
+const Color turnSignalColor = Color{255, 45, 0};
 const Color brakeColor = Color{255, 0, 0};
 
 // Animation Settings
 #define LED_ON_OFF_ANIMATION_DURATION 600
+
+#define TURN_SIGNAL_ANIMATION_FRONT_LAYER_CARRET_LENGTH 5
+#define TURN_SIGNAL_ANIMATION_DURATION 700
+
 #define BRAKE_ANIMATION_SETUP_DURATION 600
 #define BRAKE_ANIMATION_BREATHING_DURATION 800
-#define BRAKE_ANIMATION_BREATHING_DOWN_POWER_RATIO 0.3
+#define BRAKE_ANIMATION_BREATHING_DOWN_POWER_RATIO 0.6
 
 // Experimentation Sensors And Switches Settings
 #define BRAKE_SENSOR_PIN 12
@@ -79,10 +85,43 @@ LedOnOffLayer ledOnOffFrontLayer(
     white
 );
 
+TurnSignalLayer turnLeftSignalFrontLayer1(
+    0,
+    14,
+    TURN_SIGNAL_ANIMATION_FRONT_LAYER_CARRET_LENGTH,
+    TURN_SIGNAL_ANIMATION_DURATION,
+    turnSignalColor
+);
+TurnSignalLayer turnLeftSignalFrontLayer2(
+    29,
+    15,
+    TURN_SIGNAL_ANIMATION_FRONT_LAYER_CARRET_LENGTH,
+    TURN_SIGNAL_ANIMATION_DURATION,
+    turnSignalColor
+);
 
-#define FRONT_NEOPIXEL_LAYERS_COUNT 1
+TurnSignalLayer turnRightSignalFrontLayer1(
+    59,
+    45,
+    TURN_SIGNAL_ANIMATION_FRONT_LAYER_CARRET_LENGTH,
+    TURN_SIGNAL_ANIMATION_DURATION,
+    turnSignalColor
+);
+TurnSignalLayer turnRightSignalFrontLayer2(
+    30,
+    44,
+    TURN_SIGNAL_ANIMATION_FRONT_LAYER_CARRET_LENGTH,
+    TURN_SIGNAL_ANIMATION_DURATION,
+    turnSignalColor
+);
+
+#define FRONT_NEOPIXEL_LAYERS_COUNT 5
 NeopixelLayer* frontNeopixelLayers[FRONT_NEOPIXEL_LAYERS_COUNT] = {
-    &ledOnOffFrontLayer
+    &ledOnOffFrontLayer,
+    &turnLeftSignalFrontLayer1,
+    &turnLeftSignalFrontLayer2,
+    &turnRightSignalFrontLayer1,
+    &turnRightSignalFrontLayer2
 };
 
 // ----- Back Neopixel Layers -----------------------------------------------------
@@ -261,8 +300,14 @@ void loop() {
         onLedOnOffSwitchChange();
     }
 
+    // Update Front Layers
     ledOnOffFrontLayer.update(currentTimeMs);
+    turnLeftSignalFrontLayer1.update(currentTimeMs);
+    turnLeftSignalFrontLayer2.update(currentTimeMs);
+    turnRightSignalFrontLayer1.update(currentTimeMs);
+    turnRightSignalFrontLayer2.update(currentTimeMs);
 
+    // Update Back Layers
     ledOnOffBackLayer1.update(currentTimeMs);
     ledOnOffBackLayer2.update(currentTimeMs);
     ledOnOffBackLayer3.update(currentTimeMs);
@@ -299,8 +344,12 @@ void onTurnSignalLeftSwitchChange() {
 
     if (turnSignalLeftSwitch.getState()) {
         // Turn signal left is on
+        turnLeftSignalFrontLayer1.enable();
+        turnLeftSignalFrontLayer2.enable();
     } else {
         // Turn signal left is off
+        turnLeftSignalFrontLayer1.disable();
+        turnLeftSignalFrontLayer2.disable();
     }
 }
 
@@ -314,8 +363,12 @@ void onTurnSignalRightSwitchChange() {
 
     if (turnSignalRightSwitch.getState()) {
         // Turn signal right is on
+        turnRightSignalFrontLayer1.enable();
+        turnRightSignalFrontLayer2.enable();
     } else {
         // Turn signal right is off
+        turnRightSignalFrontLayer1.disable();
+        turnRightSignalFrontLayer2.disable();
     }
 }
 
