@@ -43,31 +43,31 @@ const Color brakeColor = Color{255, 0, 0};
 #define BRAKE_ANIMATION_SETUP_DURATION 600
 
 // Experimentation Sensors And Switches Settings
-#define BRAKE_SENSOR_PIN 12
-#define TURN_SIGNAL_LEFT_SWITCH_PIN 11
-#define TURN_SIGNAL_RIGHT_SWITCH_PIN 10
-#define LIGHT_ON_OFF_SWITCH_PIN 9
+// #define BRAKE_SENSOR_PIN 12
+// #define TURN_SIGNAL_LEFT_SWITCH_PIN 11
+// #define TURN_SIGNAL_RIGHT_SWITCH_PIN 10
+// #define LIGHT_ON_OFF_SWITCH_PIN 9
 
 // Sensors And Switches Settings
-//#define BRAKE_SENSOR_PIN 5
-//#define TURN_SIGNAL_LEFT_SWITCH_PIN 2
-//#define TURN_SIGNAL_RIGHT_SWITCH_PIN 3
-//#define LIGHT_ON_OFF_SWITCH_PIN 4
+#define BRAKE_SENSOR_PIN 5
+#define TURN_SIGNAL_LEFT_SWITCH_PIN 2
+#define TURN_SIGNAL_RIGHT_SWITCH_PIN 3
+#define LIGHT_ON_OFF_SWITCH_PIN 4
 
 // Experimentation Neopixel Settings
-#define FRONT_NEOPIXEL_PIN 6
-#define FRONT_NEOPIXEL_PIXEL_COUNT 60
-#define BACK_NEOPIXEL_PIN 5
-#define BACK_NEOPIXEL_PIXEL_COUNT 37 // 16 + 12 + 8 + 1
+// #define FRONT_NEOPIXEL_PIN 6
+// #define FRONT_NEOPIXEL_PIXEL_COUNT 60
+// #define BACK_NEOPIXEL_PIN 5
+// #define BACK_NEOPIXEL_PIXEL_COUNT 37 // 16 + 12 + 8 + 1
 #define BACK_NEOPIXEL_RING_2_START_INDEX 16
 #define BACK_NEOPIXEL_RING_3_START_INDEX 28
 #define BACK_NEOPIXEL_RING_4_START_INDEX 36
 
 // Neopixel Settings
-//#define FRONT_NEOPIXEL_PIN 6
-//#define FRONT_NEOPIXEL_PIXEL_COUNT 60
-//#define BACK_NEOPIXEL_PIN 7
-//#define BACK_NEOPIXEL_PIXEL_COUNT 37 // 16 + 12 + 8 + 1
+#define FRONT_NEOPIXEL_PIN 6
+#define FRONT_NEOPIXEL_PIXEL_COUNT 60
+#define BACK_NEOPIXEL_PIN 7
+#define BACK_NEOPIXEL_PIXEL_COUNT 37 // 16 + 12 + 8 + 1
 
 // ----- Switches and Sensors -----------------------------------------------------
 
