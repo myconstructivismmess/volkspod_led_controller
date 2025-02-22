@@ -15,13 +15,14 @@
 #include "easings.h"
 
 BackBrakeLayer::BackBrakeLayer(
-    const uint16_t pixelCount,
+    const uint16_t startIndex,
+    const uint16_t endIndex,
     const unsigned long animationSetupDurationMs,
     const Color color
 ) :
     NeopixelLayer(
-        0,
-        pixelCount - 1
+        startIndex,
+        endIndex
     ),
     _animationSetupDurationMs(animationSetupDurationMs),
     _color(color)

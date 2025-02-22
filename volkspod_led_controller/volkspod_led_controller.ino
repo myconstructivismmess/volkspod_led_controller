@@ -31,7 +31,7 @@
 const Color frontLedOnOffColor = Color{100, 100, 100};
 const Color backLedOnOffColor = Color{100, 100, 100};
 const Color turnSignalColor = Color{255, 45, 0};
-const Color brakeColor = Color{255, 0, 0};
+const Color brakeColor = Color{255, 255, 255};
 
 // Animation Settings
 #define LED_ON_OFF_ANIMATION_DURATION 600
@@ -60,6 +60,7 @@ const Color brakeColor = Color{255, 0, 0};
 // #define FRONT_NEOPIXEL_PIXEL_COUNT 60
 // #define BACK_NEOPIXEL_PIN 5
 // #define BACK_NEOPIXEL_PIXEL_COUNT 37 // 16 + 12 + 8 + 1
+
 #define BACK_NEOPIXEL_RING_2_START_INDEX 16
 #define BACK_NEOPIXEL_RING_3_START_INDEX 28
 #define BACK_NEOPIXEL_RING_4_START_INDEX 36
@@ -153,7 +154,8 @@ LedOnOffLayer ledOnOffBackLayer2(
 // );
 
 BackBrakeLayer brakeBackLayer(
-    BACK_NEOPIXEL_RING_2_START_INDEX,
+    BACK_NEOPIXEL_RING_3_START_INDEX,
+    BACK_NEOPIXEL_PIXEL_COUNT - 1,
     BRAKE_ANIMATION_SETUP_DURATION,
     brakeColor
 );

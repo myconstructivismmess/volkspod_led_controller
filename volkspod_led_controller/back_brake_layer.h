@@ -23,7 +23,8 @@
 class BackBrakeLayer : public NeopixelLayer {
     public:
         BackBrakeLayer(
-            const uint16_t pixelCount,
+            const uint16_t startIndex,
+            const uint16_t endIndex,
             const unsigned long animationSetupDurationMs,
             const Color color
         );
